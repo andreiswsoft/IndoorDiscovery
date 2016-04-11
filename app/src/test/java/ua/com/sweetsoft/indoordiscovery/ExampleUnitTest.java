@@ -1,4 +1,4 @@
-package sweetsoft.com.ua.indoordiscovery;
+package ua.com.sweetsoft.indoordiscovery;
 
 import org.junit.Test;
 
