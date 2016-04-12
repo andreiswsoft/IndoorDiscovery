@@ -7,34 +7,34 @@ import java.sql.Timestamp;
 
 public class SignalLevelData extends Data
 {
-    private int m_accessPointId;
+    private int m_networkId;
     private int m_level;
     private Timestamp m_timestamp;
 
     public SignalLevelData()
     {
-        m_accessPointId = 0;
+        m_networkId = 0;
         m_level = 0;
         m_timestamp = new Timestamp(0);
     }
 
-    public SignalLevelData(int id, int accessPointId, int level, Timestamp timestamp)
+    public SignalLevelData(int id, int networkId, int level, Timestamp timestamp)
     {
         super(id);
 
-        m_accessPointId = accessPointId;
+        m_networkId = networkId;
         m_level = level;
         m_timestamp = timestamp;
     }
 
-    public int getAccessPointId()
+    public int getNetworkId()
     {
-        return m_accessPointId;
+        return m_networkId;
     }
 
-    public void setAccessPointId(int id)
+    public void setNetworkId(int id)
     {
-        m_accessPointId = id;
+        m_networkId = id;
     }
 
     public int getLevel()
@@ -65,7 +65,7 @@ public class SignalLevelData extends Data
     {
         super.writeToParcel(parcel, flags);
 
-        parcel.writeInt(m_accessPointId);
+        parcel.writeInt(m_networkId);
         parcel.writeInt(m_level);
         parcel.writeLong(m_timestamp.getTime());
     }
@@ -74,7 +74,7 @@ public class SignalLevelData extends Data
     {
         super(parcel);
 
-        m_accessPointId = parcel.readInt();
+        m_networkId = parcel.readInt();
         m_level = parcel.readInt();
         m_timestamp.setTime(parcel.readLong());
     }

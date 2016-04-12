@@ -6,17 +6,20 @@ import java.sql.Timestamp;
 
 public class SignalLevelDatabaseCursorHelper extends DatabaseCursorHelper
 {
+    public SignalLevelDatabaseCursorHelper()
+    {
+    }
     public SignalLevelDatabaseCursorHelper(Cursor cursor)
     {
         super(cursor);
     }
 
-    public int getAccessPointId()
+    public int getNetworkId()
     {
         int id = 0;
         if (m_cursor != null)
         {
-            id = m_cursor.getInt(SignalLevelDatabaseHelper.COLUMN_ACCESS_POINT_ID_INDEX);
+            id = m_cursor.getInt(SignalLevelDatabaseHelper.COLUMN_NETWORK_ID_INDEX);
         }
         return id;
     }

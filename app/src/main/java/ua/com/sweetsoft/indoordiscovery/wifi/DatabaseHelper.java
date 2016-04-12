@@ -34,7 +34,7 @@ public abstract class DatabaseHelper extends SQLiteOpenHelper implements BaseCol
     @Override
     public void onCreate(SQLiteDatabase db)
     {
-        AccessPointDatabaseHelper.create(db);
+        NetworkDatabaseHelper.create(db);
         SignalLevelDatabaseHelper.create(db);
     }
 
@@ -43,10 +43,10 @@ public abstract class DatabaseHelper extends SQLiteOpenHelper implements BaseCol
     {
         Log.w("SQLite", "Upgrade from version " + oldVersion + " to version " + newVersion);
 
-        AccessPointDatabaseHelper.delete(db);
+        NetworkDatabaseHelper.delete(db);
         SignalLevelDatabaseHelper.delete(db);
 
-        AccessPointDatabaseHelper.create(db);
+        NetworkDatabaseHelper.create(db);
         SignalLevelDatabaseHelper.create(db);
     }
 

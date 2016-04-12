@@ -6,6 +6,10 @@ public class DatabaseCursorHelper
 {
     protected Cursor m_cursor;
 
+    public DatabaseCursorHelper()
+    {
+        m_cursor = null;
+    }
     public DatabaseCursorHelper(Cursor cursor)
     {
         m_cursor = cursor;
@@ -14,6 +18,11 @@ public class DatabaseCursorHelper
     public void setCursor(Cursor cursor)
     {
         m_cursor = cursor;
+    }
+
+    public boolean moveToData()
+    {
+        return (m_cursor != null && m_cursor.moveToFirst());
     }
 
     public int getId()
