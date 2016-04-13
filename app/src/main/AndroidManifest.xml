@@ -22,14 +22,14 @@
         </activity>
 
         <service
-            android:name=".LoggingService"
+            android:name=".ScanService"
             android:enabled="true"
             android:exported="false"
-            android:process=":loggingService">
+            android:process=":scanService">
         </service>
 
         <receiver
-            android:name=".LoggingServiceStarter"
+            android:name=".ScanServiceStarter"
             android:enabled="true"
             android:exported="false">
             <intent-filter>
@@ -40,7 +40,7 @@
             </intent-filter>
         </receiver>
         <receiver
-            android:name=".LoggingServiceReceiver"
+            android:name=".ScanSyncReceiver"
             android:enabled="true"
             android:exported="false">
         </receiver>

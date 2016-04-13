@@ -8,7 +8,7 @@ import android.net.wifi.WifiManager;
 
 import ua.com.sweetsoft.indoordiscovery.wifi.ScanReceiver;
 
-public class LoggingServiceReceiver extends BroadcastReceiver
+public class ScanSyncReceiver extends BroadcastReceiver
 {
     @Override
     public void onReceive(Context context, Intent intent)
@@ -18,7 +18,6 @@ public class LoggingServiceReceiver extends BroadcastReceiver
         WifiManager manager = (WifiManager)context.getSystemService(Context.WIFI_SERVICE);
         if (ua.com.sweetsoft.indoordiscovery.apisafe.WifiManager.isScanAvailable(manager))
         {
-            context.registerReceiver(new ScanReceiver(), new IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION));
             manager.startScan();
         }
     }

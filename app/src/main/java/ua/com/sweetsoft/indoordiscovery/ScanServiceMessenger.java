@@ -9,7 +9,7 @@ import android.os.Message;
 import android.os.Messenger;
 import android.os.RemoteException;
 
-public class LoggingServiceMessenger extends Handler implements android.content.ServiceConnection
+public class ScanServiceMessenger extends Handler implements android.content.ServiceConnection
 {
     public enum MessageCode
     {
@@ -40,10 +40,10 @@ public class LoggingServiceMessenger extends Handler implements android.content.
         }
     }
 
-    private LoggingService m_service = null;
+    private ScanService m_service = null;
     private Messenger m_messenger = null;
 
-    public LoggingServiceMessenger(LoggingService service)
+    public ScanServiceMessenger(ScanService service)
     {
         m_service = service;
         if (isHandler())
@@ -94,7 +94,7 @@ public class LoggingServiceMessenger extends Handler implements android.content.
     {
         if (!isHandler())
         {
-            context.bindService(new Intent(context, LoggingService.class), this, Context.BIND_AUTO_CREATE);
+            context.bindService(new Intent(context, ScanService.class), this, Context.BIND_AUTO_CREATE);
         }
     }
 
