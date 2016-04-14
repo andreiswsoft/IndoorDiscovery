@@ -49,6 +49,19 @@
             android:enabled="true"
             android:exported="false">
         </receiver>
+
+        <provider
+            android:name=".wifi.NetworkContentProvider"
+            android:authorities="ua.com.sweetsoft.indoordiscovery.provider.network"
+            android:enabled="true"
+            android:exported="false">
+        </provider>
+        <provider
+            android:name=".wifi.SignalLevelContentProvider"
+            android:authorities="ua.com.sweetsoft.indoordiscovery.provider.signalLevel"
+            android:enabled="true"
+            android:exported="false">
+        </provider>
     </application>
 
 </manifest>

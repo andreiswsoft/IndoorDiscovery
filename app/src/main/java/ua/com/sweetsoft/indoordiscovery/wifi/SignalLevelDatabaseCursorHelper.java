@@ -6,9 +6,6 @@ import java.sql.Timestamp;
 
 public class SignalLevelDatabaseCursorHelper extends DatabaseCursorHelper
 {
-    public SignalLevelDatabaseCursorHelper()
-    {
-    }
     public SignalLevelDatabaseCursorHelper(Cursor cursor)
     {
         super(cursor);

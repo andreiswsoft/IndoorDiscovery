@@ -4,7 +4,9 @@ import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 
-public class MainActivity extends AppCompatActivity
+import ua.com.sweetsoft.indoordiscovery.fragment.grid.OnFragmentInteractionListener;
+
+public class MainActivity extends AppCompatActivity implements OnFragmentInteractionListener
 {
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -13,5 +15,10 @@ public class MainActivity extends AppCompatActivity
         setContentView(R.layout.activity_main);
 
         startService(new Intent(this, ScanService.class));
+    }
+
+    public void onNetworkClick(int networkId)
+    {
+
     }
 }

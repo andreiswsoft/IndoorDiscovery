@@ -2,6 +2,7 @@ package ua.com.sweetsoft.indoordiscovery.wifi;
 
 import android.content.ContentValues;
 import android.content.Context;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
 public class SignalLevelDatabaseHelper extends DatabaseHelper

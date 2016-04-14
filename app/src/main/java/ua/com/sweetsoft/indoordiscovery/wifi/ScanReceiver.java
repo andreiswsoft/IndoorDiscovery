@@ -36,6 +36,7 @@ public class ScanReceiver extends BroadcastReceiver
                     // for debug purposes only
                     generateScanResults();
                 }
+                notifyDatabaseChange(context);
                 m_signalLevelDatabaseHelper.close();
             }
             m_networkDatabaseHelper.close();
@@ -74,7 +75,7 @@ public class ScanReceiver extends BroadcastReceiver
 
     private int addNetwork(String name)
     {
-        NetworkDatabaseCursorHelper cursorHelper = new NetworkDatabaseCursorHelper();
+        NetworkDatabaseCursorHelper cursorHelper = new NetworkDatabaseCursorHelper(null);
         cursorHelper.setCursor(m_networkDatabaseHelper.query(new String[]{DatabaseHelper.COLUMN_ID}, NetworkDatabaseHelper.COLUMN_SSID + " = '" + name + "'", null, null, null, null));
         if (!cursorHelper.moveToData())
         {
@@ -89,4 +90,10 @@ public class ScanReceiver extends BroadcastReceiver
     {
         m_signalLevelDatabaseHelper.insert(new SignalLevelData(0, networkId, level, timestamp));
     }
+
+    private void notifyDatabaseChange(Context context)
+    {
+        context.getContentResolver().notifyChange(NetworkContentProvider.NETWORKS_URI, null);
+    }
+
 }

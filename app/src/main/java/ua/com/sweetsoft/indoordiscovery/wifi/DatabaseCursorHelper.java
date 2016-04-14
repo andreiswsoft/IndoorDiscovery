@@ -6,10 +6,6 @@ public class DatabaseCursorHelper
 {
     protected Cursor m_cursor;
 
-    public DatabaseCursorHelper()
-    {
-        m_cursor = null;
-    }
     public DatabaseCursorHelper(Cursor cursor)
     {
         m_cursor = cursor;
@@ -18,6 +14,15 @@ public class DatabaseCursorHelper
     public void setCursor(Cursor cursor)
     {
         m_cursor = cursor;
+    }
+
+    public void close()
+    {
+        if (m_cursor != null)
+        {
+            m_cursor.close();
+            m_cursor = null;
+        }
     }
 
     public boolean moveToData()

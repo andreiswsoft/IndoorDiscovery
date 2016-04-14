@@ -4,9 +4,6 @@ import android.database.Cursor;
 
 public class NetworkDatabaseCursorHelper extends DatabaseCursorHelper
 {
-    public NetworkDatabaseCursorHelper()
-    {
-    }
     public NetworkDatabaseCursorHelper(Cursor cursor)
     {
         super(cursor);
