@@ -3,9 +3,6 @@ package ua.com.sweetsoft.indoordiscovery.fragment.grid;
 import android.content.Context;
 import android.database.Cursor;
 import android.os.Bundle;
-import android.support.v4.app.LoaderManager;
-import android.support.v4.content.CursorLoader;
-import android.support.v4.content.Loader;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -14,25 +11,26 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import ua.com.sweetsoft.indoordiscovery.R;
-import ua.com.sweetsoft.indoordiscovery.wifi.NetworkContentProvider;
+import ua.com.sweetsoft.indoordiscovery.fragment.IFragment;
+import ua.com.sweetsoft.indoordiscovery.wifi.NetworkDatabaseHelper;
 
-public class Fragment extends android.support.v4.app.Fragment implements LoaderManager.LoaderCallbacks<Cursor>
+public class FragmentGrid extends android.support.v4.app.Fragment implements IFragment
 {
-    private static final int LOADER_ID = 1;
     private static final String ARG_COLUMN_COUNT = "columnCount";
 
     private int m_columnCount = 1;
-    private OnFragmentInteractionListener m_listener;
+    private OnGridListener m_listener;
+    private NetworkDatabaseHelper m_databaseHelper = null;
     private RecyclerViewAdapter m_adapter = null;
 
-    public Fragment()
+    public FragmentGrid()
     {
     }
 
     @SuppressWarnings("unused")
-    public static Fragment newInstance(int columnCount)
+    public static FragmentGrid newInstance(int columnCount)
     {
-        Fragment fragment = new Fragment();
+        FragmentGrid fragment = new FragmentGrid();
         Bundle args = new Bundle();
         args.putInt(ARG_COLUMN_COUNT, columnCount);
         fragment.setArguments(args);
@@ -48,8 +46,6 @@ public class Fragment extends android.support.v4.app.Fragment implements LoaderM
         {
             m_columnCount = getArguments().getInt(ARG_COLUMN_COUNT);
         }
-
-        getLoaderManager().initLoader(LOADER_ID, null, this);
     }
 
     @Override
@@ -70,6 +66,8 @@ public class Fragment extends android.support.v4.app.Fragment implements LoaderM
                 recyclerView.setLayoutManager(new GridLayoutManager(context, m_columnCount));
             }
 
+            m_databaseHelper = new NetworkDatabaseHelper(context);
+
             m_adapter = new RecyclerViewAdapter(m_listener);
             recyclerView.setAdapter(m_adapter);
         }
@@ -82,13 +80,13 @@ public class Fragment extends android.support.v4.app.Fragment implements LoaderM
     {
         super.onAttach(context);
 
-        if (context instanceof OnFragmentInteractionListener)
+        if (context instanceof OnGridListener)
         {
-            m_listener = (OnFragmentInteractionListener) context;
+            m_listener = (OnGridListener) context;
         }
         else
         {
-            throw new RuntimeException(context.toString() + " must implement OnFragmentInteractionListener");
+            throw new RuntimeException(context.toString() + " must implement OnGridListener");
         }
     }
 
@@ -96,34 +94,35 @@ public class Fragment extends android.support.v4.app.Fragment implements LoaderM
     public void onDetach()
     {
         super.onDetach();
+
         m_listener = null;
     }
 
     @Override
-    public Loader<Cursor> onCreateLoader(int id, Bundle args)
+    public void setCursor(Cursor cursor)
     {
-        return new CursorLoader(getContext(), NetworkContentProvider.NETWORKS_URI, null, null, null, null);
-    }
-
-    @Override
-    public void onLoadFinished(Loader<Cursor> loader, Cursor cursor)
-    {
-        switch (loader.getId())
+        if (m_databaseHelper != null && m_databaseHelper.openForRead())
         {
-            case LOADER_ID:
-                m_adapter.swapCursor(cursor);
-                break;
+            Cursor cursorOld = m_adapter.swapCursor(m_databaseHelper.query(null, null, null, null, null, null));
+            if (cursorOld != null)
+            {
+                cursorOld.close();
+            }
         }
     }
 
     @Override
-    public void onLoaderReset(Loader<Cursor> loader)
+    public void resetCursor()
     {
-        switch (loader.getId())
+        Cursor cursor = m_adapter.swapCursor(null);
+        if (cursor != null)
         {
-            case LOADER_ID:
-                m_adapter.swapCursor(null);
-                break;
+            cursor.close();
+        }
+        if (m_databaseHelper != null)
+        {
+            m_databaseHelper.close();
         }
     }
+
 }

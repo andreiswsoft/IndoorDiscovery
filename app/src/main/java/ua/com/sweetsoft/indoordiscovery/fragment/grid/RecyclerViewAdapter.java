@@ -16,10 +16,10 @@ import ua.com.sweetsoft.indoordiscovery.wifi.SignalLevelDatabaseHelper;
 
 public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewHolder>
 {
-    private final OnFragmentInteractionListener m_listener;
+    private final OnGridListener m_listener;
     Cursor m_cursor = null;
 
-    public RecyclerViewAdapter(OnFragmentInteractionListener listener)
+    public RecyclerViewAdapter(OnGridListener listener)
     {
         m_listener = listener;
     }
@@ -87,7 +87,7 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewHolder
             String orderBy = SignalLevelDatabaseHelper.COLUMN_TIMESTAMP + " DESC";
             Cursor cursor = databaseHelper.query(null, selection, null, null, null, orderBy);
             SignalLevelDatabaseCursorHelper cursorHelper = new SignalLevelDatabaseCursorHelper(cursor);
-            if (cursorHelper.moveToData())
+            if (cursorHelper.moveToFirst())
             {
                 Timestamp valueTimestamp = cursorHelper.getTimestamp();
                 if (valueTimestamp.after(getLastScanTimestamp()))

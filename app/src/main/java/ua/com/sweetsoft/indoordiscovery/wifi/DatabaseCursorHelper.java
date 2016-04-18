@@ -25,9 +25,13 @@ public class DatabaseCursorHelper
         }
     }
 
-    public boolean moveToData()
+    public boolean moveToFirst()
     {
         return (m_cursor != null && m_cursor.moveToFirst());
+    }
+    public boolean moveToNext()
+    {
+        return (m_cursor != null && m_cursor.moveToNext());
     }
 
     public int getId()

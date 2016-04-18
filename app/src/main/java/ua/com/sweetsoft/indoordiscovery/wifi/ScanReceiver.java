@@ -77,11 +77,11 @@ public class ScanReceiver extends BroadcastReceiver
     {
         NetworkDatabaseCursorHelper cursorHelper = new NetworkDatabaseCursorHelper(null);
         cursorHelper.setCursor(m_networkDatabaseHelper.query(new String[]{DatabaseHelper.COLUMN_ID}, NetworkDatabaseHelper.COLUMN_SSID + " = '" + name + "'", null, null, null, null));
-        if (!cursorHelper.moveToData())
+        if (!cursorHelper.moveToFirst())
         {
             m_networkDatabaseHelper.insert(new NetworkData(0, name));
             cursorHelper.setCursor(m_networkDatabaseHelper.query(new String[]{DatabaseHelper.COLUMN_ID}, NetworkDatabaseHelper.COLUMN_SSID + " = '" + name + "'", null, null, null, null));
-            cursorHelper.moveToData();
+            cursorHelper.moveToFirst();
         }
         return cursorHelper.getId();
     }

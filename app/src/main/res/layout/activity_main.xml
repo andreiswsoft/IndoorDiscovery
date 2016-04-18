@@ -14,8 +14,18 @@
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:name="android.support.v4.app.ListFragment"
-        android:id="@+id/fragment"
+        android:id="@+id/fragmentGrid"
         android:layout_gravity="center_vertical|left"
+        android:layout_weight="2"
         tools:layout="@android:layout/simple_list_item_1"
-        class="ua.com.sweetsoft.indoordiscovery.fragment.grid.Fragment"/>
+        class="ua.com.sweetsoft.indoordiscovery.fragment.grid.FragmentGrid"/>
+    <fragment
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:name="android.support.v4.app.Fragment"
+        android:id="@+id/fragmentGraph"
+        android:layout_gravity="center_vertical|left"
+        android:layout_weight="1"
+        tools:layout="@layout/fragment_graph"
+        class="ua.com.sweetsoft.indoordiscovery.fragment.graph.FragmentGraph"/>
 </LinearLayout>
