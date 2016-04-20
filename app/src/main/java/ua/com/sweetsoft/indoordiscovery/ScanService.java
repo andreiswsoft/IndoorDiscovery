@@ -9,18 +9,23 @@ import android.os.Handler;
 
 import ua.com.sweetsoft.indoordiscovery.apisafe.HandlerThread;
 import ua.com.sweetsoft.indoordiscovery.common.Logger;
+import ua.com.sweetsoft.indoordiscovery.settings.SettingsManager;
 import ua.com.sweetsoft.indoordiscovery.wifi.ScanReceiver;
 
 public class ScanService extends Service
 {
     private final ScanServiceMessenger m_messenger;
     private HandlerThread m_handlerThread;
+    private SettingsManager m_settingsManager;
+    private boolean m_scannerOn;
+    private int m_scanPeriod;
     private ScanSyncReceiver m_syncReceiver = null;
     private ScanReceiver m_scanReceiver = null;
 
     public ScanService()
     {
         m_messenger = new ScanServiceMessenger(this);
+
         Logger.enable(true);
     }
 
@@ -38,7 +43,13 @@ public class ScanService extends Service
         m_handlerThread = new HandlerThread("scanner", android.os.Process.THREAD_PRIORITY_BACKGROUND);
         m_handlerThread.start();
 
-        startScan();
+        m_settingsManager = new SettingsManager(this);
+        m_scannerOn = m_settingsManager.isScannerOn();
+        m_scanPeriod = m_settingsManager.getScanPeriod();
+        if (m_scannerOn)
+        {
+            startScan();
+        }
     }
 
     @Override
@@ -56,9 +67,42 @@ public class ScanService extends Service
         switch (mc)
         {
             case Update:
-                UpdateScan();
+                if (setSetting(arg1, arg2))
+                {
+                    UpdateScan();
+                }
                 break;
         }
+    }
+
+    public boolean setSetting(int id, int value)
+    {
+        boolean set = false;
+        switch (id)
+        {
+            case R.string.pref_key_scanner_switch:
+                boolean scannerOn = (boolean)m_settingsManager.intToObject(id, value);
+                if (m_scannerOn != scannerOn)
+                {
+                    m_scannerOn = scannerOn;
+                    set = true;
+                }
+                break;
+            case R.string.pref_key_scan_period:
+                int scanPeriod = (int)m_settingsManager.intToObject(id, value);
+                if (m_scanPeriod != scanPeriod)
+                {
+                    m_scanPeriod = scanPeriod;
+                    set = true;
+                }
+                break;
+        }
+        return set;
+    }
+
+    private boolean isScannerOn()
+    {
+        return (m_scanReceiver != null);
     }
 
     private void startScan()
@@ -92,6 +136,13 @@ public class ScanService extends Service
 
     private void UpdateScan()
     {
-
+        if (isScannerOn())
+        {
+            stopScan();
+        }
+        if (m_scannerOn)
+        {
+            startScan();
+        }
     }
 }

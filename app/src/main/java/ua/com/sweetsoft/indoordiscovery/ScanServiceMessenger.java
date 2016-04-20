@@ -80,11 +80,13 @@ public class ScanServiceMessenger extends Handler implements android.content.Ser
         return null;
     }
 
+    @Override
     public void onServiceConnected(ComponentName className, IBinder service)
     {
         m_messenger = new Messenger(service);
     }
 
+    @Override
     public void onServiceDisconnected(ComponentName className)
     {
         m_messenger = null;
@@ -106,11 +108,11 @@ public class ScanServiceMessenger extends Handler implements android.content.Ser
         }
     }
 
-    public void send(MessageCode mc)
+    public void send(MessageCode mc, int arg1, int arg2)
     {
         if (!isHandler() && m_messenger != null)
         {
-            Message msg = Message.obtain(null, mc.toInt(), 0, 0);
+            Message msg = Message.obtain(null, mc.toInt(), arg1, arg2);
             try
             {
                 m_messenger.send(msg);
