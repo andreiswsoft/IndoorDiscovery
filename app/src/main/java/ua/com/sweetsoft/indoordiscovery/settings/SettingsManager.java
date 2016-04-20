@@ -61,33 +61,16 @@ public class SettingsManager
     public int preferenceToInt(int id, SharedPreferences sharedPreferences)
     {
         int value = 0;
-        String key = keyOf(id);
         switch (id)
         {
             case R.string.pref_key_scanner_switch:
-                value = sharedPreferences.getBoolean(key, isDefaultScannerOn()) ? 1 : 0;
+                value = sharedPreferences.getBoolean(keyOf(id), isDefaultScannerOn()) ? 1 : 0;
                 break;
             case R.string.pref_key_scan_period:
-                String val = sharedPreferences.getString(key, "");
-                if (!val.isEmpty())
-                {
-                    value = Integer.valueOf(val);
-                }
-                else
-                {
-                    value = getDefaultScanPeriod();
-                }
+                value = getScanPeriod(sharedPreferences);
                 break;
             case R.string.pref_key_data_storage_duration:
-                val = sharedPreferences.getString(key, "");
-                if (!val.isEmpty())
-                {
-                    value = Integer.valueOf(val);
-                }
-                else
-                {
-                    value = getDefaultDataStorageDuration();
-                }
+                value = getDataStorageDuration(sharedPreferences);
                 break;
         }
         return value;
@@ -114,44 +97,82 @@ public class SettingsManager
         return getPreferences().getString(key, "");
     }
 
-    public boolean isDefaultScannerOn()
-    {
-        return true;
-    }
-
     public boolean isScannerOn()
     {
         return getPreferences().getBoolean(keyOf(R.string.pref_key_scanner_switch), isDefaultScannerOn());
     }
 
-    public int getDefaultScanPeriod()
+    public boolean isDefaultScannerOn()
     {
-        return Integer.valueOf(m_context.getString(R.string.pref_default_scan_period));
+        return true;
     }
 
     public int getScanPeriod()
     {
-        int value = getPreferences().getInt(keyOf(R.string.pref_key_scan_period), getDefaultScanPeriod());
-        if (value < 0)
-        {
-            value = 0;
-        }
-        return value;
+        return getScanPeriod(getPreferences());
     }
 
-    public int getDefaultDataStorageDuration()
+    private int getScanPeriod(SharedPreferences preferences)
     {
-        return Integer.valueOf(m_context.getString(R.string.pref_default_data_storage_duration));
+        int period;
+        String value = preferences.getString(keyOf(R.string.pref_key_scan_period), "");
+        if (!value.isEmpty())
+        {
+            period = Integer.valueOf(value);
+        }
+        else
+        {
+            period = getDefaultScanPeriod();
+        }
+        if (period < 0)
+        {
+            period = 0;
+        }
+        return period;
+    }
+
+    private int getDefaultScanPeriod()
+    {
+        return Integer.valueOf(m_context.getString(R.string.pref_default_scan_period));
+    }
+
+    public long getScanPeriodMillis()
+    {
+        return 1000L*getScanPeriod();
     }
 
     public int getDataStorageDuration()
     {
-        int value = getPreferences().getInt(keyOf(R.string.pref_key_data_storage_duration), getDefaultDataStorageDuration());
-        if (value < 0)
+        return getDataStorageDuration(getPreferences());
+    }
+
+    private int getDataStorageDuration(SharedPreferences preferences)
+    {
+        int duration;
+        String value = preferences.getString(keyOf(R.string.pref_key_data_storage_duration), "");
+        if (!value.isEmpty())
         {
-            value = 0;
+            duration = Integer.valueOf(value);
         }
-        return value;
+        else
+        {
+            duration = getDefaultDataStorageDuration();
+        }
+        if (duration < 0)
+        {
+            duration = 0;
+        }
+        return duration;
+    }
+
+    private int getDefaultDataStorageDuration()
+    {
+        return Integer.valueOf(m_context.getString(R.string.pref_default_data_storage_duration));
+    }
+
+    public long getDataStorageDurationMillis()
+    {
+        return 1000L*getDataStorageDuration();
     }
 
     private SharedPreferences getPreferences()

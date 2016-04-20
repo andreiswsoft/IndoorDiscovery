@@ -10,10 +10,10 @@ import java.sql.Timestamp;
 import java.util.List;
 import java.util.Random;
 
-import ua.com.sweetsoft.indoordiscovery.common.Logger;
-
 public class ScanReceiver extends BroadcastReceiver
 {
+    private static final String databaseChangeIntent = "ua.com.sweetsoft.indoordiscovery.action.databaseUpdate";
+
     NetworkDatabaseHelper m_networkDatabaseHelper = null;
     SignalLevelDatabaseHelper m_signalLevelDatabaseHelper = null;
 
@@ -36,7 +36,7 @@ public class ScanReceiver extends BroadcastReceiver
                     // for debug purposes only
                     generateScanResults();
                 }
-                notifyDatabaseChange(context);
+                context.sendBroadcast(new Intent(databaseChangeIntent));
                 m_signalLevelDatabaseHelper.close();
             }
             m_networkDatabaseHelper.close();
@@ -67,7 +67,6 @@ public class ScanReceiver extends BroadcastReceiver
             if (networkId != 0)
             {
                 int level = random.nextInt(100);
-                Logger.logInformation(name + " : " + String.valueOf(level));
                 addSignalLevel(networkId, level, timestamp);
             }
         }
@@ -89,11 +88,6 @@ public class ScanReceiver extends BroadcastReceiver
     private void addSignalLevel(int networkId, int level, Timestamp timestamp)
     {
         m_signalLevelDatabaseHelper.insert(new SignalLevelData(0, networkId, level, timestamp));
-    }
-
-    private void notifyDatabaseChange(Context context)
-    {
-        context.getContentResolver().notifyChange(NetworkContentProvider.NETWORKS_URI, null);
     }
 
 }

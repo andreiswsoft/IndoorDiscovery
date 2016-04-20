@@ -41,11 +41,6 @@
             </intent-filter>
         </receiver>
         <receiver
-            android:name=".ScanSyncReceiver"
-            android:enabled="true"
-            android:exported="false">
-        </receiver>
-        <receiver
             android:name=".wifi.ScanReceiver"
             android:enabled="true"
             android:exported="false">
@@ -72,6 +67,17 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="ua.com.sweetsoft.indoordiscovery.MainActivity"/>
         </activity>
+
+        <receiver
+            android:name=".DatabaseUpdateReceiver"
+            android:enabled="true"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="ua.com.sweetsoft.indoordiscovery.action.databaseUpdate"/>
+
+                <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
+        </receiver>
     </application>
 
 </manifest>

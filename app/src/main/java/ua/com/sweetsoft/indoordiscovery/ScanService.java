@@ -2,15 +2,13 @@ package ua.com.sweetsoft.indoordiscovery;
 
 import android.app.Service;
 import android.content.Intent;
-import android.content.IntentFilter;
-import android.net.wifi.WifiManager;
 import android.os.IBinder;
-import android.os.Handler;
+
+import java.util.Timer;
 
 import ua.com.sweetsoft.indoordiscovery.apisafe.HandlerThread;
 import ua.com.sweetsoft.indoordiscovery.common.Logger;
 import ua.com.sweetsoft.indoordiscovery.settings.SettingsManager;
-import ua.com.sweetsoft.indoordiscovery.wifi.ScanReceiver;
 
 public class ScanService extends Service
 {
@@ -19,8 +17,8 @@ public class ScanService extends Service
     private SettingsManager m_settingsManager;
     private boolean m_scannerOn;
     private int m_scanPeriod;
-    private ScanSyncReceiver m_syncReceiver = null;
-    private ScanReceiver m_scanReceiver = null;
+    private ScanSyncTimerTask m_syncTask = null;
+    private Timer m_syncTimer = null;
 
     public ScanService()
     {
@@ -102,35 +100,28 @@ public class ScanService extends Service
 
     private boolean isScannerOn()
     {
-        return (m_scanReceiver != null);
+        return (m_syncTask != null);
     }
 
     private void startScan()
     {
-        m_scanReceiver = new ScanReceiver();
-        m_syncReceiver = new ScanSyncReceiver();
-        if (true)
-        {
-            registerReceiver(m_scanReceiver, new IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION));
-            registerReceiver(m_syncReceiver, new IntentFilter("android.intent.action.TIME_TICK"), null, new Handler(m_handlerThread.getLooper()));
-        }
-        else
-        {
-            registerReceiver(m_scanReceiver, new IntentFilter("android.intent.action.TIME_TICK"), null, new Handler(m_handlerThread.getLooper()));
-        }
+        m_syncTask = new ScanSyncTimerTask(this);
+        m_syncTimer = new Timer(true);
+        m_syncTimer.scheduleAtFixedRate(m_syncTask, 0, m_scanPeriod*1000);
     }
 
     private void stopScan()
     {
-        if (m_syncReceiver != null)
+        if (m_syncTimer != null)
         {
-            unregisterReceiver(m_syncReceiver);
-            m_syncReceiver = null;
+            m_syncTimer.cancel();
+            m_syncTimer.purge();
+            m_syncTimer = null;
         }
-        if (m_scanReceiver != null)
+        if (m_syncTask != null)
         {
-            unregisterReceiver(m_scanReceiver);
-            m_scanReceiver = null;
+            m_syncTask.reset();
+            m_syncTask = null;
         }
     }
 

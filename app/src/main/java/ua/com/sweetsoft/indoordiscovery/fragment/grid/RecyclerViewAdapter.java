@@ -10,6 +10,8 @@ import android.view.ViewGroup;
 import java.sql.Timestamp;
 
 import ua.com.sweetsoft.indoordiscovery.R;
+import ua.com.sweetsoft.indoordiscovery.common.Logger;
+import ua.com.sweetsoft.indoordiscovery.settings.SettingsManager;
 import ua.com.sweetsoft.indoordiscovery.wifi.NetworkDatabaseCursorHelper;
 import ua.com.sweetsoft.indoordiscovery.wifi.SignalLevelDatabaseCursorHelper;
 import ua.com.sweetsoft.indoordiscovery.wifi.SignalLevelDatabaseHelper;
@@ -90,7 +92,7 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewHolder
             if (cursorHelper.moveToFirst())
             {
                 Timestamp valueTimestamp = cursorHelper.getTimestamp();
-                if (valueTimestamp.after(getLastScanTimestamp()))
+                if (valueTimestamp.after(getPreviousScanTimestamp(context)))
                 {
                     value = String.valueOf(cursorHelper.getLevel());
                 }
@@ -102,9 +104,10 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewHolder
         return value;
     }
 
-    private Timestamp getLastScanTimestamp()
+    private Timestamp getPreviousScanTimestamp(Context context)
     {
-        long scanTime = 0;//System.currentTimeMillis() - 'период сканирования';
+        SettingsManager manager = new SettingsManager(context);
+        long scanTime = System.currentTimeMillis() - manager.getScanPeriodMillis();
         return new Timestamp(scanTime);
     }
 

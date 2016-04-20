@@ -14,13 +14,13 @@
     <string name="pref_title_scanner_switch">Scanner switch</string>
     <string name="pref_description_scanner_switch">Turn on/off the scanner</string>
 
-    <string name="pref_title_scan_period">Scan period</string>
+    <string name="pref_title_scan_period">Scan period (sec)</string>
     <string name="pref_default_scan_period">60</string>
 
     <!-- Data settings -->
     <string name="pref_header_data">Data</string>
 
-    <string name="pref_title_data_storage_duration">Storage duration</string>
-    <string name="pref_default_data_storage_duration">24</string>
+    <string name="pref_title_data_storage_duration">Storage duration (sec)</string>
+    <string name="pref_default_data_storage_duration">360</string>
 
 </resources>
