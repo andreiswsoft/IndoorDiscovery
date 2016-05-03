@@ -1,27 +1,21 @@
 package ua.com.sweetsoft.indoordiscovery.fragment.grid;
 
-import android.content.Context;
-import android.database.Cursor;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import java.sql.Timestamp;
-
 import ua.com.sweetsoft.indoordiscovery.R;
-import ua.com.sweetsoft.indoordiscovery.common.Logger;
-import ua.com.sweetsoft.indoordiscovery.settings.SettingsManager;
-import ua.com.sweetsoft.indoordiscovery.wifi.NetworkDatabaseCursorHelper;
-import ua.com.sweetsoft.indoordiscovery.wifi.SignalLevelDatabaseCursorHelper;
-import ua.com.sweetsoft.indoordiscovery.wifi.SignalLevelDatabaseHelper;
+import ua.com.sweetsoft.indoordiscovery.db.ormlite.Network;
+import ua.com.sweetsoft.indoordiscovery.db.ormlite.NetworkCursor;
+import ua.com.sweetsoft.indoordiscovery.db.ormlite.SignalSample;
 
 public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewHolder>
 {
-    private final OnGridListener m_listener;
-    Cursor m_cursor = null;
+    private NetworkCursor m_cursor = null;
+    private final IGridListener m_listener;
 
-    public RecyclerViewAdapter(OnGridListener listener)
+    public RecyclerViewAdapter(IGridListener listener)
     {
         m_listener = listener;
     }
@@ -36,12 +30,16 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewHolder
     @Override
     public void onBindViewHolder(final RecyclerViewHolder holder, int position)
     {
-        m_cursor.moveToPosition(position);
-        NetworkDatabaseCursorHelper networkCursorHelper = new NetworkDatabaseCursorHelper(m_cursor);
-
-        holder.m_networkId = networkCursorHelper.getId();
-        holder.m_network.setText(networkCursorHelper.getSSID());
-        holder.m_signalLevel.setText(getSignalLevel(holder.m_view.getContext(), holder.m_networkId));
+        Network network = m_cursor.moveToPosition(position);
+        holder.m_networkId = network.getId();
+        holder.m_network.setText(network.getSsid());
+        String signalLevel = "-";
+        SignalSample signalSample = network.getCurrentSignalSample(holder.m_view.getContext());
+        if (signalSample != null)
+        {
+            signalLevel = String.valueOf(signalSample.getLevel());
+        }
+        holder.m_signalLevel.setText(signalLevel);
 
         holder.m_view.setOnClickListener(new View.OnClickListener()
         {
@@ -59,56 +57,30 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewHolder
     @Override
     public int getItemCount()
     {
-        return (m_cursor != null ? m_cursor.getCount() : 0);
+        return (m_cursor != null ? (int) m_cursor.getCount() : 0);
     }
 
-    public Cursor swapCursor(Cursor cursorNew)
+    public void refresh()
     {
-        Cursor cursorOld = m_cursor;
-
-        if (m_cursor != cursorNew)
+        if (m_cursor != null)
         {
-            m_cursor = cursorNew;
-            if (cursorNew != null)
-            {
-                notifyDataSetChanged();
-            }
+            m_cursor.close();
+            m_cursor = null;
         }
-
-        return cursorOld;
-    }
-
-    private String getSignalLevel(Context context, int networkId)
-    {
-        String value = "-";
-
-        SignalLevelDatabaseHelper databaseHelper = new SignalLevelDatabaseHelper(context);
-        if (databaseHelper.openForRead())
+        m_cursor = Network.getCursor();
+        if (m_cursor != null)
         {
-            String selection = SignalLevelDatabaseHelper.COLUMN_NETWORK_ID + " = " + String.valueOf(networkId);
-            String orderBy = SignalLevelDatabaseHelper.COLUMN_TIMESTAMP + " DESC";
-            Cursor cursor = databaseHelper.query(null, selection, null, null, null, orderBy);
-            SignalLevelDatabaseCursorHelper cursorHelper = new SignalLevelDatabaseCursorHelper(cursor);
-            if (cursorHelper.moveToFirst())
-            {
-                Timestamp valueTimestamp = cursorHelper.getTimestamp();
-                if (valueTimestamp.after(getPreviousScanTimestamp(context)))
-                {
-                    value = String.valueOf(cursorHelper.getLevel());
-                }
-            }
-            cursorHelper.close();
-            databaseHelper.close();
+            notifyDataSetChanged();
         }
-
-        return value;
     }
 
-    private Timestamp getPreviousScanTimestamp(Context context)
+    public void reset()
     {
-        SettingsManager manager = new SettingsManager(context);
-        long scanTime = System.currentTimeMillis() - manager.getScanPeriodMillis();
-        return new Timestamp(scanTime);
+        if (m_cursor != null)
+        {
+            m_cursor.close();
+            m_cursor = null;
+        }
     }
 
 }

@@ -8,12 +8,16 @@ import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
 
+import ua.com.sweetsoft.indoordiscovery.db.Config;
+import ua.com.sweetsoft.indoordiscovery.db.sql.DatabaseHelper;
+import ua.com.sweetsoft.indoordiscovery.db.sql.NetworkDatabaseHelper;
+
 public class NetworkContentProvider extends ContentProvider
 {
     private static final String AUTHORITY = ua.com.sweetsoft.indoordiscovery.wifi.ContentProvider.AUTHORITY + ".network";
     private static final Uri AUTHORITY_URI = ua.com.sweetsoft.indoordiscovery.wifi.ContentProvider.AUTHORITY_URI(AUTHORITY);
 
-    private static final String PATH = NetworkDatabaseHelper.TABLE;
+    private static final String PATH = Config.TABLE_NETWORK;
 
     static
     {
@@ -43,11 +47,11 @@ public class NetworkContentProvider extends ContentProvider
                 String id = uri.getLastPathSegment();
                 if (TextUtils.isEmpty(selection))
                 {
-                    selection = DatabaseHelper.COLUMN_ID + " = " + id;
+                    selection = Config.COLUMN_ID + " = " + id;
                 }
                 else
                 {
-                    selection = selection + " AND " + DatabaseHelper.COLUMN_ID + " = " + id;
+                    selection = selection + " AND " + Config.COLUMN_ID + " = " + id;
                 }
                 break;
             default:
@@ -113,18 +117,18 @@ public class NetworkContentProvider extends ContentProvider
             case URI:
                 if (TextUtils.isEmpty(sortOrder))
                 {
-                    sortOrder = NetworkDatabaseHelper.COLUMN_SSID + " ASC";
+                    sortOrder = Config.COLUMN_NETWORK_SSID + " ASC";
                 }
                 break;
             case URI_ID:
                 String id = uri.getLastPathSegment();
                 if (TextUtils.isEmpty(selection))
                 {
-                    selection = DatabaseHelper.COLUMN_ID + " = " + id;
+                    selection = Config.COLUMN_ID + " = " + id;
                 }
                 else
                 {
-                    selection = selection + " AND " + DatabaseHelper.COLUMN_ID + " = " + id;
+                    selection = selection + " AND " + Config.COLUMN_ID + " = " + id;
                 }
                 break;
             default:
@@ -157,11 +161,11 @@ public class NetworkContentProvider extends ContentProvider
                 String id = uri.getLastPathSegment();
                 if (TextUtils.isEmpty(selection))
                 {
-                    selection = DatabaseHelper.COLUMN_ID + " = " + id;
+                    selection = Config.COLUMN_ID + " = " + id;
                 }
                 else
                 {
-                    selection = selection + " AND " + DatabaseHelper.COLUMN_ID + " = " + id;
+                    selection = selection + " AND " + Config.COLUMN_ID + " = " + id;
                 }
                 break;
             default:

@@ -1,30 +1,23 @@
 package ua.com.sweetsoft.indoordiscovery;
 
 import android.content.Intent;
-import android.content.SharedPreferences;
-import android.database.Cursor;
 import android.net.Uri;
-import android.app.LoaderManager;
-import android.content.CursorLoader;
-import android.content.Loader;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 
 import ua.com.sweetsoft.indoordiscovery.common.Logger;
+import ua.com.sweetsoft.indoordiscovery.db.DatabaseChangeNotifier;
+import ua.com.sweetsoft.indoordiscovery.db.IDatabaseChangeListener;
 import ua.com.sweetsoft.indoordiscovery.fragment.IFragment;
-import ua.com.sweetsoft.indoordiscovery.fragment.graph.OnGraphListener;
-import ua.com.sweetsoft.indoordiscovery.fragment.grid.OnGridListener;
+import ua.com.sweetsoft.indoordiscovery.fragment.graph.IGraphListener;
+import ua.com.sweetsoft.indoordiscovery.fragment.grid.IGridListener;
 import ua.com.sweetsoft.indoordiscovery.settings.SettingsActivity;
-import ua.com.sweetsoft.indoordiscovery.settings.SettingsManager;
-import ua.com.sweetsoft.indoordiscovery.wifi.NetworkContentProvider;
 
-public class MainActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor>, OnGridListener, OnGraphListener, SharedPreferences.OnSharedPreferenceChangeListener
+public class MainActivity extends AppCompatActivity implements IDatabaseChangeListener, IGridListener, IGraphListener
 {
-    private static final int LOADER_ID = 1;
-    ScanServiceMessenger m_serviceMessenger;
-    SettingsManager m_settingsManager;
+    DatabaseChangeNotifier m_databaseChangeNotifier;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -35,23 +28,19 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
         Logger.enable(true);
 
-        getLoaderManager().initLoader(LOADER_ID, null, this);
+        m_databaseChangeNotifier = new DatabaseChangeNotifier(this);
+        m_databaseChangeNotifier.add(this);
+        m_databaseChangeNotifier.start();
 
         startService(new Intent(this, ScanService.class));
-
-        m_serviceMessenger = new ScanServiceMessenger(null);
-        m_serviceMessenger.bind(this);
-        m_settingsManager = new SettingsManager(this);
-        m_settingsManager.setChangeListener(this);
     }
 
     @Override
     protected void onDestroy()
     {
-        m_serviceMessenger.unbind(this);
-        m_settingsManager.resetChangeListener(this);
-
         super.onDestroy();
+
+        m_databaseChangeNotifier.stop();
     }
 
     @Override
@@ -91,48 +80,32 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     }
 
     @Override
-    public Loader<Cursor> onCreateLoader(int id, Bundle args)
+    public void onDatabaseChanging()
     {
-        return new CursorLoader(this, NetworkContentProvider.NETWORKS_URI, null, null, null, null);
-    }
-
-    @Override
-    public void onLoadFinished(Loader<Cursor> loader, Cursor cursor)
-    {
-        switch (loader.getId())
+        IFragment fragment = findFragment(R.id.fragmentGraph);
+        if (fragment != null)
         {
-            case LOADER_ID:
-                IFragment fragment = findFragment(R.id.fragmentGraph);
-                if (fragment != null)
-                {
-                    fragment.setCursor(cursor);
-                }
-                fragment = findFragment(R.id.fragmentGrid);
-                if (fragment != null)
-                {
-                    fragment.setCursor(cursor);
-                }
-                break;
+            fragment.reset();
+        }
+        fragment = findFragment(R.id.fragmentGrid);
+        if (fragment != null)
+        {
+            fragment.reset();
         }
     }
 
     @Override
-    public void onLoaderReset(Loader<Cursor> loader)
+    public void onDatabaseChanged()
     {
-        switch (loader.getId())
+        IFragment fragment = findFragment(R.id.fragmentGraph);
+        if (fragment != null)
         {
-            case LOADER_ID:
-                IFragment fragment = findFragment(R.id.fragmentGraph);
-                if (fragment != null)
-                {
-                    fragment.resetCursor();
-                }
-                fragment = findFragment(R.id.fragmentGrid);
-                if (fragment != null)
-                {
-                    fragment.resetCursor();
-                }
-                break;
+            fragment.refresh();
+        }
+        fragment = findFragment(R.id.fragmentGrid);
+        if (fragment != null)
+        {
+            fragment.refresh();
         }
     }
 
@@ -144,12 +117,5 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
             fragment = (IFragment) getSupportFragmentManager().findFragmentById(id);
         }
         return fragment;
-    }
-
-    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key)
-    {
-        int id = m_settingsManager.idOf(key);
-        int value = m_settingsManager.preferenceToInt(id, sharedPreferences);
-        m_serviceMessenger.send(ScanServiceMessenger.MessageCode.Update, id, value);
     }
 }

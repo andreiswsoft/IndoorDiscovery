@@ -11,7 +11,7 @@ import ua.com.sweetsoft.indoordiscovery.wifi.ScanReceiver;
 
 public class ScanSyncTimerTask extends TimerTask
 {
-    private static final boolean debugMode = false;
+    private static final boolean debugMode = true;
     private static final String debugIntent = "ua.com.sweetsoft.indoordiscovery.SCAN_RESULTS";
 
     private Context m_context;

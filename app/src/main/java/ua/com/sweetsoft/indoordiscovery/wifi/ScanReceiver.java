@@ -6,88 +6,97 @@ import android.content.Intent;
 import android.net.wifi.ScanResult;
 import android.net.wifi.WifiManager;
 
-import java.sql.Timestamp;
 import java.util.List;
 import java.util.Random;
+
+import ua.com.sweetsoft.indoordiscovery.db.ormlite.DatabaseHelperFactory;
+import ua.com.sweetsoft.indoordiscovery.db.ormlite.Network;
+import ua.com.sweetsoft.indoordiscovery.db.ormlite.NetworkDao;
+import ua.com.sweetsoft.indoordiscovery.db.ormlite.SignalSample;
+import ua.com.sweetsoft.indoordiscovery.db.ormlite.SignalSampleDao;
+import ua.com.sweetsoft.indoordiscovery.settings.SettingsManager;
 
 public class ScanReceiver extends BroadcastReceiver
 {
     private static final String databaseChangeIntent = "ua.com.sweetsoft.indoordiscovery.action.databaseUpdate";
 
-    NetworkDatabaseHelper m_networkDatabaseHelper = null;
-    SignalLevelDatabaseHelper m_signalLevelDatabaseHelper = null;
-
     @Override
     public void onReceive(Context context, Intent intent)
     {
-        m_networkDatabaseHelper = new NetworkDatabaseHelper(context);
-        if (m_networkDatabaseHelper.openForWrite())
+        long time = getScanTime(context);
+        if (intent.getAction().compareTo(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION) == 0)
         {
-            m_signalLevelDatabaseHelper = new SignalLevelDatabaseHelper(context);
-            if (m_signalLevelDatabaseHelper.openForWrite())
-            {
-                if (intent.getAction().compareTo(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION) == 0)
-                {
-                    WifiManager manager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
-                    saveScanResults(manager.getScanResults());
-                }
-                else
-                {
-                    // for debug purposes only
-                    generateScanResults();
-                }
-                context.sendBroadcast(new Intent(databaseChangeIntent));
-                m_signalLevelDatabaseHelper.close();
-            }
-            m_networkDatabaseHelper.close();
+            WifiManager manager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
+            saveScanResults(manager.getScanResults(), time);
         }
+        else
+        {
+            // for debug purposes only
+            generateScanResults(time);
+        }
+        context.sendBroadcast(new Intent(databaseChangeIntent));
     }
 
-    private void saveScanResults(List<ScanResult> scanResults)
+    private void saveScanResults(List<ScanResult> scanResults, long time)
     {
-        Timestamp timestamp = new Timestamp(System.currentTimeMillis());
         for (ScanResult result : scanResults)
         {
-            int networkId = addNetwork(result.SSID);
-            if (networkId != 0)
+            Network network = addNetwork(new Network(result.SSID));
+            if (network != null)
             {
-                addSignalLevel(networkId, result.level, timestamp);
+                addSignalSample(new SignalSample(network, result.level, time));
             }
         }
     }
 
-    private void generateScanResults()
+    private void generateScanResults(long time)
     {
-        Timestamp timestamp = new Timestamp(System.currentTimeMillis());
         Random random = new Random();
-        for (int network = 1; network <= 5; network++)
+        for (int cnt = 1; cnt <= 5; cnt++)
         {
-            String name = "network " + String.valueOf(network);
-            int networkId = addNetwork(name);
-            if (networkId != 0)
+            String name = "network " + String.valueOf(cnt);
+            Network network = addNetwork(new Network(name));
+            if (network != null)
             {
                 int level = random.nextInt(100);
-                addSignalLevel(networkId, level, timestamp);
+                addSignalSample(new SignalSample(network, level, time));
             }
         }
     }
 
-    private int addNetwork(String name)
+    private Network addNetwork(Network net)
     {
-        NetworkDatabaseCursorHelper cursorHelper = new NetworkDatabaseCursorHelper(null);
-        cursorHelper.setCursor(m_networkDatabaseHelper.query(new String[]{DatabaseHelper.COLUMN_ID}, NetworkDatabaseHelper.COLUMN_SSID + " = '" + name + "'", null, null, null, null));
-        if (!cursorHelper.moveToFirst())
+        Network network = null;
+
+        NetworkDao networkDao = DatabaseHelperFactory.getHelper().getNetworkDao();
+        if (networkDao != null)
         {
-            m_networkDatabaseHelper.insert(new NetworkData(0, name));
-            cursorHelper.setCursor(m_networkDatabaseHelper.query(new String[]{DatabaseHelper.COLUMN_ID}, NetworkDatabaseHelper.COLUMN_SSID + " = '" + name + "'", null, null, null, null));
-            cursorHelper.moveToFirst();
+            network = networkDao.read(net);
+            if (network == null)
+            {
+                network = networkDao.create(net);
+            }
         }
-        return cursorHelper.getId();
+        return network;
     }
 
-    private void addSignalLevel(int networkId, int level, Timestamp timestamp)
+    private SignalSample addSignalSample(SignalSample sgnSample)
     {
-        m_signalLevelDatabaseHelper.insert(new SignalLevelData(0, networkId, level, timestamp));
+        SignalSample signalSample = null;
+
+        SignalSampleDao signalSampleDao = DatabaseHelperFactory.getHelper().getSignalSampleDao();
+        if (signalSampleDao != null)
+        {
+            signalSample = signalSampleDao.create(sgnSample);
+        }
+        return signalSample;
     }
 
+    private long getScanTime(Context context)
+    {
+        SettingsManager manager = SettingsManager.getInstance(context);
+        long scanPeriod = manager.getScanPeriod();
+        long scanTime = System.currentTimeMillis()/1000L;
+        return (scanTime - (scanTime % scanPeriod));
+    }
 }

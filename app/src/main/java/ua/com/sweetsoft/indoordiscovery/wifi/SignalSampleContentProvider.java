@@ -8,12 +8,16 @@ import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
 
-public class SignalLevelContentProvider extends ContentProvider
+import ua.com.sweetsoft.indoordiscovery.db.Config;
+import ua.com.sweetsoft.indoordiscovery.db.sql.DatabaseHelper;
+import ua.com.sweetsoft.indoordiscovery.db.sql.SignalSampleDatabaseHelper;
+
+public class SignalSampleContentProvider extends ContentProvider
 {
-    private static final String AUTHORITY = ua.com.sweetsoft.indoordiscovery.wifi.ContentProvider.AUTHORITY + ".signalLevel";
+    private static final String AUTHORITY = ua.com.sweetsoft.indoordiscovery.wifi.ContentProvider.AUTHORITY + ".signalsample";
     private static final Uri AUTHORITY_URI = ua.com.sweetsoft.indoordiscovery.wifi.ContentProvider.AUTHORITY_URI(AUTHORITY);
 
-    private static final String PATH = SignalLevelDatabaseHelper.TABLE;
+    private static final String PATH = Config.TABLE_SIGNALSAMPLE;
 
     static
     {
@@ -27,7 +31,7 @@ public class SignalLevelContentProvider extends ContentProvider
 
     DatabaseHelper m_databaseHelper;
 
-    public SignalLevelContentProvider()
+    public SignalSampleContentProvider()
     {
         super();
     }
@@ -43,11 +47,11 @@ public class SignalLevelContentProvider extends ContentProvider
                 String id = uri.getLastPathSegment();
                 if (TextUtils.isEmpty(selection))
                 {
-                    selection = DatabaseHelper.COLUMN_ID + " = " + id;
+                    selection = Config.COLUMN_ID + " = " + id;
                 }
                 else
                 {
-                    selection = selection + " AND " + DatabaseHelper.COLUMN_ID + " = " + id;
+                    selection = selection + " AND " + Config.COLUMN_ID + " = " + id;
                 }
                 break;
             default:
@@ -101,7 +105,7 @@ public class SignalLevelContentProvider extends ContentProvider
     @Override
     public boolean onCreate()
     {
-        m_databaseHelper = new SignalLevelDatabaseHelper(getContext());
+        m_databaseHelper = new SignalSampleDatabaseHelper(getContext());
         return true;
     }
 
@@ -113,18 +117,18 @@ public class SignalLevelContentProvider extends ContentProvider
             case URI:
                 if (TextUtils.isEmpty(sortOrder))
                 {
-                    sortOrder = SignalLevelDatabaseHelper.COLUMN_LEVEL + " ASC";
+                    sortOrder = Config.COLUMN_SIGNALSAMPLE_LEVEL + " ASC";
                 }
                 break;
             case URI_ID:
                 String id = uri.getLastPathSegment();
                 if (TextUtils.isEmpty(selection))
                 {
-                    selection = DatabaseHelper.COLUMN_ID + " = " + id;
+                    selection = Config.COLUMN_ID + " = " + id;
                 }
                 else
                 {
-                    selection = selection + " AND " + DatabaseHelper.COLUMN_ID + " = " + id;
+                    selection = selection + " AND " + Config.COLUMN_ID + " = " + id;
                 }
                 break;
             default:
@@ -157,11 +161,11 @@ public class SignalLevelContentProvider extends ContentProvider
                 String id = uri.getLastPathSegment();
                 if (TextUtils.isEmpty(selection))
                 {
-                    selection = DatabaseHelper.COLUMN_ID + " = " + id;
+                    selection = Config.COLUMN_ID + " = " + id;
                 }
                 else
                 {
-                    selection = selection + " AND " + DatabaseHelper.COLUMN_ID + " = " + id;
+                    selection = selection + " AND " + Config.COLUMN_ID + " = " + id;
                 }
                 break;
             default:

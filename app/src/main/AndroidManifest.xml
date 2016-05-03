@@ -8,6 +8,7 @@
     <uses-feature android:name="android.hardware.wifi"/>
 
     <application
+        android:name=".Application"
         android:allowBackup="true"
         android:hardwareAccelerated="false"
         android:icon="@mipmap/ic_launcher"
@@ -60,8 +61,8 @@
             android:exported="false">
         </provider>
         <provider
-            android:name=".wifi.SignalLevelContentProvider"
-            android:authorities="ua.com.sweetsoft.indoordiscovery.provider.signalLevel"
+            android:name=".wifi.SignalSampleContentProvider"
+            android:authorities="ua.com.sweetsoft.indoordiscovery.provider.signalsample"
             android:enabled="true"
             android:exported="false">
         </provider>

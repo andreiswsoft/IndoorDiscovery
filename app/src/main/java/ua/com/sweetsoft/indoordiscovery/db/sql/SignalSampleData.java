@@ -1,30 +1,30 @@
-package ua.com.sweetsoft.indoordiscovery.wifi;
+package ua.com.sweetsoft.indoordiscovery.db.sql;
 
 import android.os.Parcel;
 import android.os.Parcelable;
 
 import java.sql.Timestamp;
 
-public class SignalLevelData extends Data
+public class SignalSampleData extends Data
 {
     private int m_networkId;
     private int m_level;
-    private Timestamp m_timestamp;
+    private long m_time;
 
-    public SignalLevelData()
+    public SignalSampleData()
     {
         m_networkId = 0;
         m_level = 0;
-        m_timestamp = new Timestamp(0);
+        m_time = 0;
     }
 
-    public SignalLevelData(int id, int networkId, int level, Timestamp timestamp)
+    public SignalSampleData(int id, int networkId, int level, long time)
     {
         super(id);
 
         m_networkId = networkId;
         m_level = level;
-        m_timestamp = timestamp;
+        m_time = time;
     }
 
     public int getNetworkId()
@@ -47,12 +47,12 @@ public class SignalLevelData extends Data
         m_level = level;
     }
 
-    public Timestamp getTimestamp()
+    public long getTime()
     {
-        return m_timestamp;
+        return m_time;
     }
 
-    public void setTimestamp(Timestamp timestamp) { m_timestamp = timestamp; }
+    public void setTime(long time) { m_time = time; }
 
     @Override
     public int describeContents()
@@ -67,28 +67,28 @@ public class SignalLevelData extends Data
 
         parcel.writeInt(m_networkId);
         parcel.writeInt(m_level);
-        parcel.writeLong(m_timestamp.getTime());
+        parcel.writeLong(m_time);
     }
 
-    private SignalLevelData(Parcel parcel)
+    private SignalSampleData(Parcel parcel)
     {
         super(parcel);
 
         m_networkId = parcel.readInt();
         m_level = parcel.readInt();
-        m_timestamp.setTime(parcel.readLong());
+        m_time = parcel.readLong();
     }
 
-    public static final Parcelable.Creator<SignalLevelData> CREATOR = new Parcelable.Creator<SignalLevelData>()
+    public static final Parcelable.Creator<SignalSampleData> CREATOR = new Parcelable.Creator<SignalSampleData>()
     {
-        public SignalLevelData createFromParcel(Parcel parcel)
+        public SignalSampleData createFromParcel(Parcel parcel)
         {
-            return new SignalLevelData(parcel);
+            return new SignalSampleData(parcel);
         }
 
-        public SignalLevelData[] newArray(int size)
+        public SignalSampleData[] newArray(int size)
         {
-            return new SignalLevelData[size];
+            return new SignalSampleData[size];
         }
     };
 }

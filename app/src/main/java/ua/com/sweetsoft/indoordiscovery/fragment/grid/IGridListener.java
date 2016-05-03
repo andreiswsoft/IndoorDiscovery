@@ -1,6 +1,6 @@
 package ua.com.sweetsoft.indoordiscovery.fragment.grid;
 
-public interface OnGridListener
+public interface IGridListener
 {
     void onNetworkClick(int networkId);
 }

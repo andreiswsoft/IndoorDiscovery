@@ -4,6 +4,6 @@ import android.database.Cursor;
 
 public interface IFragment
 {
-    void setCursor(Cursor cursor);
-    void resetCursor();
+    void refresh();
+    void reset();
 }

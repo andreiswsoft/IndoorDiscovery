@@ -1,7 +1,6 @@
 package ua.com.sweetsoft.indoordiscovery.fragment.graph;
 
 import android.content.Context;
-import android.database.Cursor;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -17,14 +16,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 import ua.com.sweetsoft.indoordiscovery.R;
+import ua.com.sweetsoft.indoordiscovery.db.ormlite.Network;
+import ua.com.sweetsoft.indoordiscovery.db.ormlite.NetworkCursor;
+import ua.com.sweetsoft.indoordiscovery.db.ormlite.SignalSample;
 import ua.com.sweetsoft.indoordiscovery.fragment.IFragment;
-import ua.com.sweetsoft.indoordiscovery.wifi.NetworkDatabaseCursorHelper;
-import ua.com.sweetsoft.indoordiscovery.wifi.SignalLevelDatabaseCursorHelper;
-import ua.com.sweetsoft.indoordiscovery.wifi.SignalLevelDatabaseHelper;
 
 public class FragmentGraph extends android.support.v4.app.Fragment implements IFragment
 {
-    private OnGraphListener m_listener;
+    private IGraphListener m_listener;
     private XYPlot m_graph;
 
     public FragmentGraph()
@@ -73,9 +72,9 @@ public class FragmentGraph extends android.support.v4.app.Fragment implements IF
     {
         super.onAttach(context);
 
-        if (context instanceof OnGraphListener)
+        if (context instanceof IGraphListener)
         {
-            m_listener = (OnGraphListener) context;
+            m_listener = (IGraphListener) context;
         }
         else
         {
@@ -92,41 +91,39 @@ public class FragmentGraph extends android.support.v4.app.Fragment implements IF
     }
 
     @Override
-    public void setCursor(Cursor cursor)
+    public void refresh()
     {
         m_graph.clear();
 
-        NetworkDatabaseCursorHelper networkCursorHelper = new NetworkDatabaseCursorHelper(cursor);
-        SignalLevelDatabaseHelper signalLevelDbHelper = new SignalLevelDatabaseHelper(getContext());
-        if (signalLevelDbHelper.openForRead())
+        NetworkCursor networkCursor = Network.getCursor();
+        if (networkCursor != null)
         {
-            for (boolean net = networkCursorHelper.moveToFirst(); net; net = networkCursorHelper.moveToNext())
+            while (networkCursor.hasNext())
             {
-                int networkId = networkCursorHelper.getId();
-
-                List<Integer> levels = new ArrayList<Integer>();
-                String selection = SignalLevelDatabaseHelper.COLUMN_NETWORK_ID + " = " + String.valueOf(networkId);
-                String orderBy = SignalLevelDatabaseHelper.COLUMN_TIMESTAMP + " ASC";
-                SignalLevelDatabaseCursorHelper signalLevelCursorHelper = new SignalLevelDatabaseCursorHelper(signalLevelDbHelper.query(null, selection, null, null, null, orderBy));
-                for (boolean lvl = signalLevelCursorHelper.moveToFirst(); lvl; lvl = signalLevelCursorHelper.moveToNext())
+                Network network = networkCursor.getNext();
+                List<SignalSample> signalSamples = network.getSignalSamples(true);
+                if (signalSamples != null)
                 {
-                    levels.add(signalLevelCursorHelper.getLevel());
+                    List<Integer> levels = new ArrayList<Integer>();
+// missed samples
+                    for (SignalSample signalSample : signalSamples)
+                    {
+                        levels.add(signalSample.getLevel());
+                    }
+                    XYSeries series = new SimpleXYSeries(levels, SimpleXYSeries.ArrayFormat.Y_VALS_ONLY, network.getSsid());
+                    int lineColor = Color.rgb(10 * network.getId(), 26 * network.getId(), 42 * network.getId());
+                    int pointColor = Color.rgb(5 * network.getId(), 12 * network.getId(), 21 * network.getId());
+                    LineAndPointFormatter seriesFormat = new LineAndPointFormatter(lineColor, pointColor, null, null);
+                    m_graph.addSeries(series, seriesFormat);
                 }
-                signalLevelCursorHelper.close();
-
-                XYSeries series = new SimpleXYSeries(levels, SimpleXYSeries.ArrayFormat.Y_VALS_ONLY, networkCursorHelper.getSSID());
-                int lineColor = Color.rgb(10 * networkId, 26 * networkId, 42 * networkId);
-                int pointColor = Color.rgb(5 * networkId, 12 * networkId, 21 * networkId);
-                LineAndPointFormatter seriesFormat = new LineAndPointFormatter(lineColor, pointColor, null, null);
-                m_graph.addSeries(series, seriesFormat);
             }
-            m_graph.redraw();
-            signalLevelDbHelper.close();
+            networkCursor.close();
         }
+        m_graph.redraw();
     }
 
     @Override
-    public void resetCursor()
+    public void reset()
     {
         m_graph.clear();
     }

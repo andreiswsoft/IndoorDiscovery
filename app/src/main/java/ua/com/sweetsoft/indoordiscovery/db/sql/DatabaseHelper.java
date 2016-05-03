@@ -1,4 +1,4 @@
-package ua.com.sweetsoft.indoordiscovery.wifi;
+package ua.com.sweetsoft.indoordiscovery.db.sql;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -9,14 +9,10 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.provider.BaseColumns;
 import android.util.Log;
 
+import ua.com.sweetsoft.indoordiscovery.db.Config;
+
 public abstract class DatabaseHelper extends SQLiteOpenHelper implements BaseColumns
 {
-    private static final String DATABASE_NAME = "database.db";
-    private static final int DATABASE_VERSION = 1;
-
-    public static final String COLUMN_ID = BaseColumns._ID;
-    public static final int COLUMN_ID_INDEX = 0;
-
     protected static final String DELETE_SCRIPT = "DROP TABLE IF EXISTS ";
     protected static final String CLEAN_SCRIPT = "DELETE FROM ";
 
@@ -24,7 +20,7 @@ public abstract class DatabaseHelper extends SQLiteOpenHelper implements BaseCol
 
     public DatabaseHelper(Context context)
     {
-        super(context, DATABASE_NAME, null, DATABASE_VERSION);
+        super(context, Config.DATABASE_NAME, null, Config.DATABASE_VERSION);
     }
     public DatabaseHelper(Context context, String name, SQLiteDatabase.CursorFactory factory, int version)
     {
@@ -35,7 +31,7 @@ public abstract class DatabaseHelper extends SQLiteOpenHelper implements BaseCol
     public void onCreate(SQLiteDatabase db)
     {
         NetworkDatabaseHelper.create(db);
-        SignalLevelDatabaseHelper.create(db);
+        SignalSampleDatabaseHelper.create(db);
     }
 
     @Override
@@ -44,10 +40,10 @@ public abstract class DatabaseHelper extends SQLiteOpenHelper implements BaseCol
         Log.w("SQLite", "Upgrade from version " + oldVersion + " to version " + newVersion);
 
         NetworkDatabaseHelper.delete(db);
-        SignalLevelDatabaseHelper.delete(db);
+        SignalSampleDatabaseHelper.delete(db);
 
         NetworkDatabaseHelper.create(db);
-        SignalLevelDatabaseHelper.create(db);
+        SignalSampleDatabaseHelper.create(db);
     }
 
     public boolean openForWrite() throws SQLException
@@ -127,6 +123,6 @@ public abstract class DatabaseHelper extends SQLiteOpenHelper implements BaseCol
     }
     public void delete(Data data)
     {
-        delete(COLUMN_ID + "=" + Integer.toString(data.getId()), null);
+        delete(Config.COLUMN_ID + "=" + Integer.toString(data.getId()), null);
     }
 }

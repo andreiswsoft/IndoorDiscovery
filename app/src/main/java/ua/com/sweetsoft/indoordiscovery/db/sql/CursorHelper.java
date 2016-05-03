@@ -1,12 +1,14 @@
-package ua.com.sweetsoft.indoordiscovery.wifi;
+package ua.com.sweetsoft.indoordiscovery.db.sql;
 
 import android.database.Cursor;
 
-public class DatabaseCursorHelper
+import ua.com.sweetsoft.indoordiscovery.db.Config;
+
+public class CursorHelper
 {
     protected Cursor m_cursor;
 
-    public DatabaseCursorHelper(Cursor cursor)
+    public CursorHelper(Cursor cursor)
     {
         m_cursor = cursor;
     }
@@ -39,7 +41,7 @@ public class DatabaseCursorHelper
         int id = 0;
         if (m_cursor != null)
         {
-            String _id = m_cursor.getString(DatabaseHelper.COLUMN_ID_INDEX);
+            String _id = m_cursor.getString(Config.COLUMN_ID_INDEX);
             id = Integer.parseInt(_id);
         }
         return id;

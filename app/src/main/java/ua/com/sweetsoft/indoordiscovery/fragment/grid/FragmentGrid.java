@@ -1,7 +1,6 @@
 package ua.com.sweetsoft.indoordiscovery.fragment.grid;
 
 import android.content.Context;
-import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
@@ -12,15 +11,13 @@ import android.view.ViewGroup;
 
 import ua.com.sweetsoft.indoordiscovery.R;
 import ua.com.sweetsoft.indoordiscovery.fragment.IFragment;
-import ua.com.sweetsoft.indoordiscovery.wifi.NetworkDatabaseHelper;
 
 public class FragmentGrid extends android.support.v4.app.Fragment implements IFragment
 {
     private static final String ARG_COLUMN_COUNT = "columnCount";
 
     private int m_columnCount = 1;
-    private OnGridListener m_listener;
-    private NetworkDatabaseHelper m_databaseHelper = null;
+    private IGridListener m_listener;
     private RecyclerViewAdapter m_adapter = null;
 
     public FragmentGrid()
@@ -66,8 +63,6 @@ public class FragmentGrid extends android.support.v4.app.Fragment implements IFr
                 recyclerView.setLayoutManager(new GridLayoutManager(context, m_columnCount));
             }
 
-            m_databaseHelper = new NetworkDatabaseHelper(context);
-
             m_adapter = new RecyclerViewAdapter(m_listener);
             recyclerView.setAdapter(m_adapter);
         }
@@ -80,9 +75,9 @@ public class FragmentGrid extends android.support.v4.app.Fragment implements IFr
     {
         super.onAttach(context);
 
-        if (context instanceof OnGridListener)
+        if (context instanceof IGridListener)
         {
-            m_listener = (OnGridListener) context;
+            m_listener = (IGridListener) context;
         }
         else
         {
@@ -99,30 +94,15 @@ public class FragmentGrid extends android.support.v4.app.Fragment implements IFr
     }
 
     @Override
-    public void setCursor(Cursor cursor)
+    public void refresh()
     {
-        if (m_databaseHelper != null && m_databaseHelper.openForRead())
-        {
-            Cursor cursorOld = m_adapter.swapCursor(m_databaseHelper.query(null, null, null, null, null, null));
-            if (cursorOld != null)
-            {
-                cursorOld.close();
-            }
-        }
+        m_adapter.refresh();
     }
 
     @Override
-    public void resetCursor()
+    public void reset()
     {
-        Cursor cursor = m_adapter.swapCursor(null);
-        if (cursor != null)
-        {
-            cursor.close();
-        }
-        if (m_databaseHelper != null)
-        {
-            m_databaseHelper.close();
-        }
+        m_adapter.reset();
     }
 
 }

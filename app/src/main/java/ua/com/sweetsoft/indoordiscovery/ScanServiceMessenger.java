@@ -13,7 +13,7 @@ public class ScanServiceMessenger extends Handler implements android.content.Ser
 {
     public enum MessageCode
     {
-        Update(1);
+        ReceiveSetting(1);
 
         private int m_i;
 

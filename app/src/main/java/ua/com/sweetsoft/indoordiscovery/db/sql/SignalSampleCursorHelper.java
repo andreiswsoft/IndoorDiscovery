@@ -1,12 +1,15 @@
-package ua.com.sweetsoft.indoordiscovery.wifi;
+package ua.com.sweetsoft.indoordiscovery.db.sql;
 
 import android.database.Cursor;
 
 import java.sql.Timestamp;
 
-public class SignalLevelDatabaseCursorHelper extends DatabaseCursorHelper
+import ua.com.sweetsoft.indoordiscovery.db.Config;
+import ua.com.sweetsoft.indoordiscovery.db.sql.CursorHelper;
+
+public class SignalSampleCursorHelper extends CursorHelper
 {
-    public SignalLevelDatabaseCursorHelper(Cursor cursor)
+    public SignalSampleCursorHelper(Cursor cursor)
     {
         super(cursor);
     }
@@ -16,7 +19,7 @@ public class SignalLevelDatabaseCursorHelper extends DatabaseCursorHelper
         int id = 0;
         if (m_cursor != null)
         {
-            id = m_cursor.getInt(SignalLevelDatabaseHelper.COLUMN_NETWORK_ID_INDEX);
+            id = m_cursor.getInt(Config.COLUMN_SIGNALSAMPLE_NETWORK_ID_INDEX);
         }
         return id;
     }
@@ -26,7 +29,7 @@ public class SignalLevelDatabaseCursorHelper extends DatabaseCursorHelper
         int level = 0;
         if (m_cursor != null)
         {
-            level = m_cursor.getInt(SignalLevelDatabaseHelper.COLUMN_LEVEL_INDEX);
+            level = m_cursor.getInt(Config.COLUMN_SIGNALSAMPLE_LEVEL_INDEX);
         }
         return level;
     }
@@ -36,7 +39,7 @@ public class SignalLevelDatabaseCursorHelper extends DatabaseCursorHelper
         Timestamp timestamp = null;
         if (m_cursor != null)
         {
-            timestamp = Timestamp.valueOf(m_cursor.getString(SignalLevelDatabaseHelper.COLUMN_TIMESTAMP_INDEX));
+            timestamp = new Timestamp(m_cursor.getLong(Config.COLUMN_SIGNALSAMPLE_TIME_INDEX));
         }
         return timestamp;
     }

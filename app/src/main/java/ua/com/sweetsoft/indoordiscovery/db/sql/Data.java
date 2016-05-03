@@ -1,4 +1,4 @@
-package ua.com.sweetsoft.indoordiscovery.wifi;
+package ua.com.sweetsoft.indoordiscovery.db.sql;
 
 import android.os.Parcel;
 import android.os.Parcelable;
