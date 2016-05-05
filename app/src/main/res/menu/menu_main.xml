@@ -4,8 +4,20 @@
     tools:context=".MainActivity">
 
     <item
-        android:id="@+id/main_settings"
+        android:id="@+id/main_view_grid"
         android:orderInCategory="100"
+        android:title="@string/menu_grid_view"
+        android:icon="@drawable/ic_list_white_24dp"
+        app:showAsAction="ifRoom" />
+    <item
+        android:id="@+id/main_view_graph"
+        android:orderInCategory="100"
+        android:title="@string/menu_graph_view"
+        android:icon="@drawable/ic_timeline_white_24dp"
+        app:showAsAction="ifRoom" />
+    <item
+        android:id="@+id/main_settings"
+        android:orderInCategory="200"
         android:title="@string/menu_settings"
         android:icon="@drawable/ic_settings_white_24dp"
         app:showAsAction="ifRoom" />

@@ -8,6 +8,7 @@ import ua.com.sweetsoft.indoordiscovery.R;
 import ua.com.sweetsoft.indoordiscovery.ScanServiceMessenger;
 import ua.com.sweetsoft.indoordiscovery.common.Information;
 import ua.com.sweetsoft.indoordiscovery.common.Logger;
+import ua.com.sweetsoft.indoordiscovery.fragment.Fragment;
 
 public final class SettingsManager implements SharedPreferences.OnSharedPreferenceChangeListener
 {
@@ -16,10 +17,12 @@ public final class SettingsManager implements SharedPreferences.OnSharedPreferen
     private Context m_context;
     private ScanServiceMessenger m_serviceMessenger = null;
     private SharedPreferences m_preferences = null;
-    // Settings
+    // Persists settings
     private boolean m_scannerOn;
     private int m_scanPeriod;
     private int m_dataStorageDuration;
+    // Non persists settings
+    private Fragment.FragmentType m_currentFragmentType = Fragment.FragmentType.Grid;
 
     public static SettingsManager getInstance(Context context)
     {
@@ -76,6 +79,7 @@ public final class SettingsManager implements SharedPreferences.OnSharedPreferen
         {
             getPreferences().unregisterOnSharedPreferenceChangeListener(this);
             m_serviceMessenger.unbind(m_context);
+            m_serviceMessenger = null;
         }
     }
 
@@ -261,4 +265,15 @@ public final class SettingsManager implements SharedPreferences.OnSharedPreferen
         }
         return m_preferences;
     }
+
+    public Fragment.FragmentType getCurrentFragmentType()
+    {
+        return m_currentFragmentType;
+    }
+
+    public void setCurrentFragmentType(Fragment.FragmentType type)
+    {
+        m_currentFragmentType = type;
+    }
+
 }

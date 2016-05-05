@@ -63,14 +63,14 @@ public class Network implements Serializable
     {
         SignalSample signalSample = null;
 
+        SettingsManager manager = SettingsManager.getInstance(context);
+        long scanTime = System.currentTimeMillis()/1000L - manager.getScanPeriod();
+
         SignalSampleCursor cursor = SignalSample.getCursorForNetwork(this, false);
         if (cursor != null)
         {
             if (cursor.hasNext())
             {
-                SettingsManager manager = SettingsManager.getInstance(context);
-                long scanTime = System.currentTimeMillis()/1000L - manager.getScanPeriod();
-
                 SignalSample sample = cursor.getNext();
                 if (sample.getTime() > scanTime)
                 {

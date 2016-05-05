@@ -35,7 +35,7 @@ public class DatabaseChangeNotifier implements LoaderManager.LoaderCallbacks<Cur
         stop();
     }
 
-    public void add(IDatabaseChangeListener listener)
+    public void addListener(IDatabaseChangeListener listener)
     {
         if (!m_listeners.contains(listener))
         {
@@ -43,7 +43,7 @@ public class DatabaseChangeNotifier implements LoaderManager.LoaderCallbacks<Cur
         }
     }
 
-    public void remove(IDatabaseChangeListener listener)
+    public void removeListener(IDatabaseChangeListener listener)
     {
         if (m_listeners.contains(listener))
         {

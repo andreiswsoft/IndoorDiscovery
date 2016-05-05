@@ -2,6 +2,7 @@ package ua.com.sweetsoft.indoordiscovery.settings;
 
 import android.annotation.TargetApi;
 import android.content.Context;
+import android.content.Intent;
 import android.content.res.Configuration;
 import android.media.Ringtone;
 import android.media.RingtoneManager;
@@ -107,6 +108,9 @@ public class SettingsActivity extends AppCompatPreferenceActivity
             if (!super.onMenuItemSelected(featureId, item))
             {
                 NavUtils.navigateUpFromSameTask(this);
+                /*Intent intent = NavUtils.getParentActivityIntent(this);
+                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                NavUtils.navigateUpTo(this, intent);*/
             }
             return true;
         }

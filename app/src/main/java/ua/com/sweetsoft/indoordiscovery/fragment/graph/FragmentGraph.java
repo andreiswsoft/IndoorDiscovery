@@ -19,9 +19,9 @@ import ua.com.sweetsoft.indoordiscovery.R;
 import ua.com.sweetsoft.indoordiscovery.db.ormlite.Network;
 import ua.com.sweetsoft.indoordiscovery.db.ormlite.NetworkCursor;
 import ua.com.sweetsoft.indoordiscovery.db.ormlite.SignalSample;
-import ua.com.sweetsoft.indoordiscovery.fragment.IFragment;
+import ua.com.sweetsoft.indoordiscovery.fragment.Fragment;
 
-public class FragmentGraph extends android.support.v4.app.Fragment implements IFragment
+public class FragmentGraph extends Fragment
 {
     private IGraphListener m_listener;
     private XYPlot m_graph;

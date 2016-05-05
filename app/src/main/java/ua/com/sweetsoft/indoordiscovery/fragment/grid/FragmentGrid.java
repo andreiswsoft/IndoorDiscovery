@@ -10,9 +10,9 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import ua.com.sweetsoft.indoordiscovery.R;
-import ua.com.sweetsoft.indoordiscovery.fragment.IFragment;
+import ua.com.sweetsoft.indoordiscovery.fragment.Fragment;
 
-public class FragmentGrid extends android.support.v4.app.Fragment implements IFragment
+public class FragmentGrid extends Fragment
 {
     private static final String ARG_COLUMN_COUNT = "columnCount";
 
