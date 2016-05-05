@@ -1,30 +1,19 @@
 package ua.com.sweetsoft.indoordiscovery.db;
 
-import android.app.Activity;
-import android.app.LoaderManager;
 import android.content.Context;
-import android.content.CursorLoader;
-import android.content.Loader;
-import android.database.Cursor;
-import android.os.Bundle;
+import android.database.ContentObserver;
+import android.net.Uri;
+import android.os.Handler;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import ua.com.sweetsoft.indoordiscovery.wifi.NetworkContentProvider;
-
-public class DatabaseChangeNotifier implements LoaderManager.LoaderCallbacks<Cursor>
+public class DatabaseChangeNotifier extends ContentObserver
 {
-    private static final int LOADER_ID = 1;
+    private IDatabaseChangeListener m_listener;
 
-    private Context m_context;
-    private LoaderManager m_loaderManager;
-    private List<IDatabaseChangeListener> m_listeners = new ArrayList<IDatabaseChangeListener>();
-
-    public DatabaseChangeNotifier(Activity activity)
+    public DatabaseChangeNotifier(IDatabaseChangeListener listener)
     {
-        m_context = activity;
-        m_loaderManager = activity.getLoaderManager();
+        super(new Handler());
+
+        m_listener = listener;
     }
 
     @Override
@@ -35,64 +24,25 @@ public class DatabaseChangeNotifier implements LoaderManager.LoaderCallbacks<Cur
         stop();
     }
 
-    public void addListener(IDatabaseChangeListener listener)
-    {
-        if (!m_listeners.contains(listener))
-        {
-            m_listeners.add(listener);
-        }
-    }
-
-    public void removeListener(IDatabaseChangeListener listener)
-    {
-        if (m_listeners.contains(listener))
-        {
-            m_listeners.remove(listener);
-        }
-    }
-
     public void start()
     {
-        m_loaderManager.initLoader(LOADER_ID, null, this);
+        m_listener.getContext().getContentResolver().registerContentObserver(ContentProvider.getAuthorityUri(), true, this);
     }
 
     public void stop()
     {
-        m_loaderManager.destroyLoader(LOADER_ID);
+        m_listener.getContext().getContentResolver().unregisterContentObserver(this);
     }
 
     public static void notifyChange(Context context)
     {
-        context.getContentResolver().notifyChange(NetworkContentProvider.NETWORKS_URI, null);
+        context.getContentResolver().notifyChange(ContentProvider.getAuthorityUri(), null);
     }
 
     @Override
-    public Loader<Cursor> onCreateLoader(int id, Bundle args)
+    public void onChange(boolean selfChange, Uri uri)
     {
-        return new CursorLoader(m_context, NetworkContentProvider.NETWORKS_URI, null, null, null, null);
+        m_listener.onDatabaseChanged();
     }
 
-    @Override
-    public void onLoadFinished(Loader<Cursor> loader, Cursor cursor)
-    {
-        if (loader.getId() == LOADER_ID)
-        {
-            for (IDatabaseChangeListener listener : m_listeners)
-            {
-                listener.onDatabaseChanged();
-            }
-        }
-    }
-
-    @Override
-    public void onLoaderReset(Loader<Cursor> loader)
-    {
-        if (loader.getId() == LOADER_ID)
-        {
-            for (IDatabaseChangeListener listener : m_listeners)
-            {
-                listener.onDatabaseChanging();
-            }
-        }
-    }
 }

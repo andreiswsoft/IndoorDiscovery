@@ -9,6 +9,7 @@ import android.net.wifi.WifiManager;
 import java.util.List;
 import java.util.Random;
 
+import ua.com.sweetsoft.indoordiscovery.common.Logger;
 import ua.com.sweetsoft.indoordiscovery.db.ormlite.DatabaseHelperFactory;
 import ua.com.sweetsoft.indoordiscovery.db.ormlite.Network;
 import ua.com.sweetsoft.indoordiscovery.db.ormlite.NetworkDao;
@@ -18,7 +19,7 @@ import ua.com.sweetsoft.indoordiscovery.settings.SettingsManager;
 
 public class ScanReceiver extends BroadcastReceiver
 {
-    private static final String databaseChangeIntent = "ua.com.sweetsoft.indoordiscovery.action.databaseUpdate";
+    private static final String databaseUpdateIntent = "ua.com.sweetsoft.indoordiscovery.action.databaseUpdate";
 
     @Override
     public void onReceive(Context context, Intent intent)
@@ -34,7 +35,7 @@ public class ScanReceiver extends BroadcastReceiver
             // for debug purposes only
             generateScanResults(time);
         }
-        context.sendBroadcast(new Intent(databaseChangeIntent));
+        context.sendBroadcast(new Intent(databaseUpdateIntent));
     }
 
     private void saveScanResults(List<ScanResult> scanResults, long time)

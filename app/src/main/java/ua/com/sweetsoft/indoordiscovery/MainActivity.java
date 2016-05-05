@@ -1,5 +1,6 @@
 package ua.com.sweetsoft.indoordiscovery;
 
+import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.support.v4.app.FragmentManager;
@@ -34,7 +35,6 @@ public class MainActivity extends AppCompatActivity implements IDatabaseChangeLi
         Logger.enable(true);
 
         m_databaseChangeNotifier = new DatabaseChangeNotifier(this);
-        m_databaseChangeNotifier.addListener(this);
         m_databaseChangeNotifier.start();
 
         startService(new Intent(this, ScanService.class));
@@ -46,6 +46,14 @@ public class MainActivity extends AppCompatActivity implements IDatabaseChangeLi
         super.onDestroy();
 
         m_databaseChangeNotifier.stop();
+    }
+
+    @Override
+    protected void onPostCreate (Bundle savedInstanceState)
+    {
+        super.onPostCreate(savedInstanceState);
+
+        refreshFragments();
     }
 
     @Override
@@ -112,22 +120,18 @@ public class MainActivity extends AppCompatActivity implements IDatabaseChangeLi
     }
 
     @Override
-    public void onDatabaseChanging()
+    public Context getContext()
     {
-        Fragment fragment = findFragment(Fragment.FragmentType.Grid);
-        if (fragment != null)
-        {
-            fragment.reset();
-        }
-        fragment = findFragment(Fragment.FragmentType.Graph);
-        if (fragment != null)
-        {
-            fragment.reset();
-        }
+        return this;
     }
 
     @Override
     public void onDatabaseChanged()
+    {
+        refreshFragments();
+    }
+
+    private void refreshFragments()
     {
         Fragment fragment = findFragment(Fragment.FragmentType.Grid);
         if (fragment != null)

@@ -122,10 +122,4 @@ public class FragmentGraph extends Fragment
         m_graph.redraw();
     }
 
-    @Override
-    public void reset()
-    {
-        m_graph.clear();
-    }
-
 }

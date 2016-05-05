@@ -99,10 +99,4 @@ public class FragmentGrid extends Fragment
         m_adapter.refresh();
     }
 
-    @Override
-    public void reset()
-    {
-        m_adapter.reset();
-    }
-
 }

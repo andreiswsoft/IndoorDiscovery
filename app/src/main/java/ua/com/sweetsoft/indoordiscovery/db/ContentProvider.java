@@ -1,4 +1,4 @@
-package ua.com.sweetsoft.indoordiscovery.wifi;
+package ua.com.sweetsoft.indoordiscovery.db;
 
 import android.content.UriMatcher;
 import android.net.Uri;
@@ -28,4 +28,8 @@ public abstract class ContentProvider extends android.content.ContentProvider
         Logger.enable(true);
     }
 
+    public static final Uri getAuthorityUri()
+    {
+        return AUTHORITY_URI(AUTHORITY);
+    }
 }

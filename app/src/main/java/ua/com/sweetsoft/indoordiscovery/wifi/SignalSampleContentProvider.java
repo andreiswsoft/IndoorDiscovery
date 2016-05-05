@@ -9,13 +9,14 @@ import android.support.annotation.NonNull;
 import android.text.TextUtils;
 
 import ua.com.sweetsoft.indoordiscovery.db.Config;
+import ua.com.sweetsoft.indoordiscovery.db.ContentProvider;
 import ua.com.sweetsoft.indoordiscovery.db.sql.DatabaseHelper;
 import ua.com.sweetsoft.indoordiscovery.db.sql.SignalSampleDatabaseHelper;
 
 public class SignalSampleContentProvider extends ContentProvider
 {
-    private static final String AUTHORITY = ua.com.sweetsoft.indoordiscovery.wifi.ContentProvider.AUTHORITY + ".signalsample";
-    private static final Uri AUTHORITY_URI = ua.com.sweetsoft.indoordiscovery.wifi.ContentProvider.AUTHORITY_URI(AUTHORITY);
+    private static final String AUTHORITY = ContentProvider.AUTHORITY + ".signalsample";
+    private static final Uri AUTHORITY_URI = ContentProvider.AUTHORITY_URI(AUTHORITY);
 
     private static final String PATH = Config.TABLE_SIGNALSAMPLE;
 
