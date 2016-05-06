@@ -5,10 +5,9 @@
         android:key="@string/pref_key_scanner_switch"
         android:summary="@string/pref_description_scanner_switch"
         android:title="@string/pref_title_scanner_switch"/>
-
     <EditTextPreference
         android:defaultValue="@string/pref_default_scan_period"
-        android:inputType="text|numberDecimal"
+        android:inputType="numberDecimal"
         android:key="@string/pref_key_scan_period"
         android:maxLines="1"
         android:selectAllOnFocus="true"

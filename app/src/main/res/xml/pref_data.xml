@@ -2,7 +2,7 @@
 
     <EditTextPreference
         android:defaultValue="@string/pref_default_data_storage_duration"
-        android:inputType="text|numberDecimal"
+        android:inputType="numberDecimal"
         android:key="@string/pref_key_data_storage_duration"
         android:maxLines="1"
         android:selectAllOnFocus="true"

@@ -2,21 +2,24 @@ package ua.com.sweetsoft.indoordiscovery.settings;
 
 import android.annotation.TargetApi;
 import android.content.Context;
-import android.content.Intent;
 import android.content.res.Configuration;
 import android.media.Ringtone;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.preference.EditTextPreference;
 import android.preference.ListPreference;
 import android.preference.Preference;
 import android.support.v7.app.ActionBar;
 import android.preference.RingtonePreference;
+import android.text.InputFilter;
 import android.text.TextUtils;
 import android.view.MenuItem;
 import android.support.v4.app.NavUtils;
+import android.widget.EditText;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import ua.com.sweetsoft.indoordiscovery.R;
@@ -76,6 +79,23 @@ public class SettingsActivity extends AppCompatPreferenceActivity
     public static void bindPreference(Preference preference)
     {
         preference.setOnPreferenceChangeListener(preferenceChangeListener);
+
+        switch (m_manager.idOf(preference.getKey()))
+        {
+            case R.string.pref_key_scan_period:
+            case R.string.pref_key_data_storage_duration:
+                EditTextPreference editTextPreference = (EditTextPreference)preference;
+                EditText editText = editTextPreference.getEditText();
+                List<InputFilter> filterList = new ArrayList<InputFilter>();
+                for (InputFilter filter : editText.getFilters())
+                {
+                    filterList.add(filter);
+                }
+                filterList.add(new PositiveDecimalInputFilter(editTextPreference));
+                InputFilter[] filers = new InputFilter[filterList.size()];
+                editText.setFilters(filterList.toArray(filers));
+                break;
+        }
 
         preferenceChangeListener.onPreferenceChange(preference, m_manager.getString(preference.getKey()));
     }

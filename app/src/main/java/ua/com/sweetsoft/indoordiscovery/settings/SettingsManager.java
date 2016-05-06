@@ -159,7 +159,7 @@ public final class SettingsManager implements SharedPreferences.OnSharedPreferen
         return m_context.getString(id);
     }
 
-    private int idOf(String key)
+    public int idOf(String key)
     {
         int id;
         do
