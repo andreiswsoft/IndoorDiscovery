@@ -3,6 +3,7 @@ package ua.com.sweetsoft.indoordiscovery;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.os.SystemClock;
 
 import com.j256.ormlite.stmt.DeleteBuilder;
 import com.j256.ormlite.stmt.PreparedDelete;
@@ -29,6 +30,9 @@ public class DatabaseUpdateReceiver extends BroadcastReceiver
     public void onReceive(Context context, Intent intent)
     {
         deleteExpiredData(context);
+
+        // Wait for data will stored to database (without this current levels will not be displayed)
+        SystemClock.sleep(100);
 
         DatabaseChangeNotifier.notifyChange(context);
     }
