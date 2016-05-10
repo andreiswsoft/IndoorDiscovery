@@ -14,13 +14,19 @@ public class ScanSyncTimerTask extends TimerTask
     private static final boolean debugMode = true;
     private static final String debugIntent = "ua.com.sweetsoft.indoordiscovery.SCAN_RESULTS";
 
+    private boolean m_scanning = false;
+    private boolean m_autorunScan = false;
     private Context m_context;
     private ScanReceiver m_scanReceiver;
 
     public ScanSyncTimerTask(Context context)
     {
         m_context = context;
-        m_scanReceiver = new ScanReceiver();
+        m_scanReceiver = new ScanReceiver(this);
+    }
+
+    public void init()
+    {
         if (debugMode)
         {
             m_context.registerReceiver(m_scanReceiver, new IntentFilter(debugIntent));
@@ -34,24 +40,49 @@ public class ScanSyncTimerTask extends TimerTask
     public void reset()
     {
         m_context.unregisterReceiver(m_scanReceiver);
-        m_scanReceiver = null;
     }
 
     @Override
     public void run()
     {
-        if (debugMode)
+        beginScan();
+    }
+
+    private synchronized void beginScan()
+    {
+        if (!m_scanning)
         {
-            m_context.sendBroadcast(new Intent(debugIntent));
+            m_autorunScan = false;
+
+            if (debugMode)
+            {
+                m_context.sendBroadcast(new Intent(debugIntent));
+                m_scanning = true;
+            }
+            else
+            {
+                //if (!context.getPackageManager().hasSystemFeature(PackageManager.FEATURE_WIFI))
+                WifiManager manager = (WifiManager) m_context.getSystemService(Context.WIFI_SERVICE);
+                if (ua.com.sweetsoft.indoordiscovery.apisafe.WifiManager.isScanAvailable(manager))
+                {
+                    manager.startScan();
+                    m_scanning = true;
+                }
+            }
         }
         else
         {
-    //      if (!context.getPackageManager().hasSystemFeature(PackageManager.FEATURE_WIFI))
-            WifiManager manager = (WifiManager) m_context.getSystemService(Context.WIFI_SERVICE);
-            if (ua.com.sweetsoft.indoordiscovery.apisafe.WifiManager.isScanAvailable(manager))
-            {
-                manager.startScan();
-            }
+            m_autorunScan = true;
+        }
+    }
+
+    public synchronized void endScan()
+    {
+        m_scanning = false;
+
+        if (m_autorunScan)
+        {
+            beginScan();
         }
     }
 }

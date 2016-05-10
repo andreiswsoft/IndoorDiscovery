@@ -1,6 +1,5 @@
 package ua.com.sweetsoft.indoordiscovery.wifi;
 
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.net.wifi.ScanResult;
@@ -9,17 +8,19 @@ import android.net.wifi.WifiManager;
 import java.util.List;
 import java.util.Random;
 
-import ua.com.sweetsoft.indoordiscovery.common.Logger;
+import ua.com.sweetsoft.indoordiscovery.ScanSyncTimerTask;
 import ua.com.sweetsoft.indoordiscovery.db.ormlite.DatabaseHelperFactory;
 import ua.com.sweetsoft.indoordiscovery.db.ormlite.Network;
 import ua.com.sweetsoft.indoordiscovery.db.ormlite.NetworkDao;
 import ua.com.sweetsoft.indoordiscovery.db.ormlite.SignalSample;
 import ua.com.sweetsoft.indoordiscovery.db.ormlite.SignalSampleDao;
-import ua.com.sweetsoft.indoordiscovery.settings.SettingsManager;
 
-public class ScanReceiver extends BroadcastReceiver
+public class ScanReceiver extends ua.com.sweetsoft.indoordiscovery.ScanReceiver
 {
-    private static final String databaseUpdateIntent = "ua.com.sweetsoft.indoordiscovery.action.databaseUpdate";
+    public ScanReceiver(ScanSyncTimerTask scanTask)
+    {
+        super(scanTask);
+    }
 
     @Override
     public void onReceive(Context context, Intent intent)
@@ -35,7 +36,7 @@ public class ScanReceiver extends BroadcastReceiver
             // for debug purposes only
             generateScanResults(time);
         }
-        context.sendBroadcast(new Intent(databaseUpdateIntent));
+        super.onReceive(context, intent);
     }
 
     private void saveScanResults(List<ScanResult> scanResults, long time)
@@ -93,11 +94,4 @@ public class ScanReceiver extends BroadcastReceiver
         return signalSample;
     }
 
-    private long getScanTime(Context context)
-    {
-        SettingsManager manager = SettingsManager.getInstance(context);
-        long scanPeriod = manager.getScanPeriod();
-        long scanTime = System.currentTimeMillis()/1000L;
-        return (scanTime - (scanTime % scanPeriod));
-    }
 }

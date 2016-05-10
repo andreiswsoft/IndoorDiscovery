@@ -15,12 +15,13 @@ public class ScanService extends Service
     private final ScanServiceMessenger m_messenger;
     private HandlerThread m_handlerThread;
     private SettingsManager m_settingsManager;
-    private ScanSyncTimerTask m_syncTask = null;
     private Timer m_syncTimer = null;
+    private final ScanSyncTimerTask m_syncTask;
 
     public ScanService()
     {
         m_messenger = new ScanServiceMessenger(this);
+        m_syncTask = new ScanSyncTimerTask(this);
 
         Logger.enable(true);
     }
@@ -71,12 +72,13 @@ public class ScanService extends Service
 
     private boolean isScannerOn()
     {
-        return (m_syncTask != null);
+        return (m_syncTimer != null);
     }
 
     private void startScan()
     {
-        m_syncTask = new ScanSyncTimerTask(this);
+        m_syncTask.init();
+
         m_syncTimer = new Timer(true);
         m_syncTimer.scheduleAtFixedRate(m_syncTask, 0, m_settingsManager.getScanPeriod()*1000);
     }
@@ -89,11 +91,8 @@ public class ScanService extends Service
             m_syncTimer.purge();
             m_syncTimer = null;
         }
-        if (m_syncTask != null)
-        {
-            m_syncTask.reset();
-            m_syncTask = null;
-        }
+
+        m_syncTask.reset();
     }
 
     private void UpdateScan()
