@@ -68,7 +68,7 @@ public final class SettingsManager implements SharedPreferences.OnSharedPreferen
 
     private void startTrackChanges()
     {
-        m_serviceMessenger = new ScanServiceMessenger(null);
+        m_serviceMessenger = new ScanServiceMessenger();
         m_serviceMessenger.bind(m_context);
         getPreferences().registerOnSharedPreferenceChangeListener(this);
     }

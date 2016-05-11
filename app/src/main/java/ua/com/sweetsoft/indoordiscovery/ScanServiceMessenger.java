@@ -8,12 +8,14 @@ import android.os.IBinder;
 import android.os.Message;
 import android.os.Messenger;
 import android.os.RemoteException;
+import android.support.annotation.NonNull;
 
 public class ScanServiceMessenger extends Handler implements android.content.ServiceConnection
 {
     public enum MessageCode
     {
-        ReceiveSetting(1);
+        ReceiveSetting(1),
+        WiFiStateChanged(2);
 
         private int m_i;
 
@@ -43,13 +45,14 @@ public class ScanServiceMessenger extends Handler implements android.content.Ser
     private ScanService m_service = null;
     private Messenger m_messenger = null;
 
-    public ScanServiceMessenger(ScanService service)
+    public ScanServiceMessenger()
+    {
+    }
+
+    public ScanServiceMessenger(@NonNull ScanService service)
     {
         m_service = service;
-        if (isHandler())
-        {
-            m_messenger = new Messenger(this);
-        }
+        m_messenger = new Messenger(this);
     }
 
     private boolean isHandler()

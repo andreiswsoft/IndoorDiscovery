@@ -7,7 +7,9 @@
         android:layout_width="wrap_content"
         android:layout_height="fill_parent"
         android:textAppearance="?android:attr/textAppearanceMedium"
-        android:id="@+id/network"/>
+        android:id="@+id/network"
+        android:singleLine="true"
+        />
 
     <TextView
         android:layout_width="fill_parent"
@@ -16,6 +18,7 @@
         android:id="@+id/signalLevel"
         android:layout_toEndOf="@id/network"
         android:layout_toRightOf="@+id/network"
-        android:textAlignment="center"/>
+        android:textAlignment="center"
+        android:singleLine="true"/>
 
 </RelativeLayout>

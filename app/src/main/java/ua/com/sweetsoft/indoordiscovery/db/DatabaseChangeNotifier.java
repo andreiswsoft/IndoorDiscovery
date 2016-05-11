@@ -40,6 +40,12 @@ public class DatabaseChangeNotifier extends ContentObserver
     }
 
     @Override
+    public void onChange(boolean selfChange)
+    {
+        onChange(selfChange, null);
+    }
+
+    @Override
     public void onChange(boolean selfChange, Uri uri)
     {
         m_listener.onDatabaseChanged();

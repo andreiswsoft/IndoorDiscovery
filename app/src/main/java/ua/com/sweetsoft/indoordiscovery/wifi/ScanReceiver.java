@@ -17,6 +17,10 @@ import ua.com.sweetsoft.indoordiscovery.db.ormlite.SignalSampleDao;
 
 public class ScanReceiver extends ua.com.sweetsoft.indoordiscovery.ScanReceiver
 {
+    public ScanReceiver()
+    {
+    }
+
     public ScanReceiver(ScanSyncTimerTask scanTask)
     {
         super(scanTask);
@@ -29,7 +33,11 @@ public class ScanReceiver extends ua.com.sweetsoft.indoordiscovery.ScanReceiver
         if (intent.getAction().compareTo(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION) == 0)
         {
             WifiManager manager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
-            saveScanResults(manager.getScanResults(), time);
+            List<ScanResult> scanResults = manager.getScanResults();
+            if (scanResults != null)
+            {
+                saveScanResults(scanResults, time);
+            }
         }
         else
         {

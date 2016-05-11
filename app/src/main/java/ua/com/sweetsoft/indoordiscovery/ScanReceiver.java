@@ -12,6 +12,11 @@ public class ScanReceiver extends BroadcastReceiver
 
     private ScanSyncTimerTask m_scanTask;
 
+    protected ScanReceiver()
+    {
+        m_scanTask = null;
+    }
+
     protected ScanReceiver(ScanSyncTimerTask scanTask)
     {
         m_scanTask = scanTask;
@@ -20,7 +25,10 @@ public class ScanReceiver extends BroadcastReceiver
     @Override
     public void onReceive(Context context, Intent intent)
     {
-        m_scanTask.endScan();
+        if (m_scanTask != null)
+        {
+            m_scanTask.endScan();
+        }
 
         context.sendBroadcast(new Intent(databaseUpdateIntent));
     }
