@@ -51,7 +51,7 @@ public class ScanReceiver extends ua.com.sweetsoft.indoordiscovery.ScanReceiver
     {
         for (ScanResult result : scanResults)
         {
-            Network network = addNetwork(new Network(result.SSID));
+            Network network = addNetwork(new Network(result.SSID, result.BSSID));
             if (network != null)
             {
                 addSignalSample(new SignalSample(network, result.level, time));
@@ -64,8 +64,9 @@ public class ScanReceiver extends ua.com.sweetsoft.indoordiscovery.ScanReceiver
         Random random = new Random();
         for (int cnt = 1; cnt <= 5; cnt++)
         {
-            String name = "network " + String.valueOf(cnt);
-            Network network = addNetwork(new Network(name));
+            String ssid = "network " + String.valueOf(cnt);
+            String bssid = String.valueOf(cnt);
+            Network network = addNetwork(new Network(ssid, bssid));
             if (network != null)
             {
                 int level = random.nextInt(100);

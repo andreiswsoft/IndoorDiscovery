@@ -26,7 +26,7 @@ import ua.com.sweetsoft.indoordiscovery.R;
 
 public class SettingsActivity extends AppCompatPreferenceActivity
 {
-    private static SettingsManager m_manager = null;
+    private static SettingsManager m_settingsManager = null;
 
     private static Preference.OnPreferenceChangeListener preferenceChangeListener = new Preference.OnPreferenceChangeListener()
     {
@@ -80,7 +80,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity
     {
         preference.setOnPreferenceChangeListener(preferenceChangeListener);
 
-        switch (m_manager.idOf(preference.getKey()))
+        switch (m_settingsManager.idOf(preference.getKey()))
         {
             case R.string.pref_key_scan_period:
             case R.string.pref_key_data_storage_duration:
@@ -97,7 +97,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity
                 break;
         }
 
-        preferenceChangeListener.onPreferenceChange(preference, m_manager.getString(preference.getKey()));
+        preferenceChangeListener.onPreferenceChange(preference, m_settingsManager.getString(preference.getKey()));
     }
 
     @Override
@@ -105,7 +105,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity
     {
         super.onCreate(savedInstanceState);
 
-        m_manager = SettingsManager.getInstance(this);
+        m_settingsManager = SettingsManager.getInstance(this);
 
         setupActionBar();
     }

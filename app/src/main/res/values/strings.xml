@@ -11,6 +11,11 @@
     <string name="button_yes">Yes</string>
     <string name="button_no">No</string>
 
+    <string name="notify_title_scan_on">Indoor Discovery scan is ON</string>
+    <string name="notify_title_scan_off">Indoor Discovery scan is OFF</string>
+    <string name="notify_text">Go to application</string>
+    <string name="notify_action_stop_service">Stop service</string>
+
     <!-- Strings related to Settings -->
     <string name="pref_key_scanner_switch">scanner_switch</string>
     <string name="pref_key_scan_period">scan_period</string>

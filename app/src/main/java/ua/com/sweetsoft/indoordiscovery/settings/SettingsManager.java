@@ -2,20 +2,22 @@ package ua.com.sweetsoft.indoordiscovery.settings;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.os.Message;
 import android.preference.PreferenceManager;
 
 import ua.com.sweetsoft.indoordiscovery.R;
-import ua.com.sweetsoft.indoordiscovery.ScanServiceMessenger;
+import ua.com.sweetsoft.indoordiscovery.ScanService;
 import ua.com.sweetsoft.indoordiscovery.common.Information;
 import ua.com.sweetsoft.indoordiscovery.common.Logger;
+import ua.com.sweetsoft.indoordiscovery.common.ServiceMessageSender;
 import ua.com.sweetsoft.indoordiscovery.fragment.Fragment;
 
-public final class SettingsManager implements SharedPreferences.OnSharedPreferenceChangeListener
+public final class SettingsManager implements SharedPreferences.OnSharedPreferenceChangeListener, ServiceMessageSender.ISender
 {
     private static volatile SettingsManager m_instance = null;
 
     private Context m_context;
-    private ScanServiceMessenger m_serviceMessenger = null;
+    private ServiceMessageSender m_messenger = null;
     private SharedPreferences m_preferences = null;
     // Persists settings
     private boolean m_scannerOn;
@@ -23,6 +25,11 @@ public final class SettingsManager implements SharedPreferences.OnSharedPreferen
     private int m_dataStorageDuration;
     // Non persists settings
     private Fragment.FragmentType m_currentFragmentType = Fragment.FragmentType.Grid;
+
+    public static SettingsManager checkInstance()
+    {
+        return m_instance;
+    }
 
     public static SettingsManager getInstance(Context context)
     {
@@ -32,14 +39,7 @@ public final class SettingsManager implements SharedPreferences.OnSharedPreferen
             {
                 if (m_instance == null)
                 {
-                    try
-                    {
-                        m_instance = new SettingsManager(context);
-                    }
-                    catch (RuntimeException e)
-                    {
-                        Logger.logException(e, "new SettingsManager(...)");
-                    }
+                    m_instance = new SettingsManager(context.getApplicationContext());
                 }
             }
         }
@@ -68,27 +68,45 @@ public final class SettingsManager implements SharedPreferences.OnSharedPreferen
 
     private void startTrackChanges()
     {
-        m_serviceMessenger = new ScanServiceMessenger();
-        m_serviceMessenger.bind(m_context);
+        bindToService();
         getPreferences().registerOnSharedPreferenceChangeListener(this);
     }
 
     private void stopTrackChanges()
     {
-        if (m_serviceMessenger != null)
+        getPreferences().unregisterOnSharedPreferenceChangeListener(this);
+        unbindFromService();
+    }
+
+    private void bindToService()
+    {
+        if (m_messenger == null)
         {
-            getPreferences().unregisterOnSharedPreferenceChangeListener(this);
-            m_serviceMessenger.unbind(m_context);
-            m_serviceMessenger = null;
+            m_messenger = new ServiceMessageSender(this);
+            m_messenger.bind(m_context, ScanService.class);
+        }
+    }
+
+    public void unbindFromService()
+    {
+        if (m_messenger != null)
+        {
+            m_messenger.unbind(m_context);
+            m_messenger = null;
         }
     }
 
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key)
     {
-        if (m_serviceMessenger != null)
+        if (m_messenger != null)
         {
             sendSetting(key, sharedPreferences);
         }
+    }
+
+    @Override
+    public void onServiceMessageReceiverConnected()
+    {
     }
 
     private void sendSetting(String key, SharedPreferences sharedPreferences)
@@ -110,7 +128,8 @@ public final class SettingsManager implements SharedPreferences.OnSharedPreferen
                 value = m_dataStorageDuration;
                 break;
         }
-        m_serviceMessenger.send(ScanServiceMessenger.MessageCode.ReceiveSetting, id, value);
+        Message message = Message.obtain(null, ScanService.MessageCode.ReceiveSetting.toInt(), id, value);
+        m_messenger.send(message);
     }
 
     public boolean receiveSetting(int id, int value)

@@ -21,6 +21,7 @@ import ua.com.sweetsoft.indoordiscovery.settings.SettingsManager;
 
 public class MainActivity extends AppCompatActivity implements IDatabaseChangeListener, IGridListener, IGraphListener
 {
+    private SettingsManager m_settingsManager;
     private DatabaseChangeNotifier m_databaseChangeNotifier;
 
     @Override
@@ -30,14 +31,16 @@ public class MainActivity extends AppCompatActivity implements IDatabaseChangeLi
 
         setContentView(R.layout.activity_main);
 
-        setFragments();
-
         Logger.enable(true);
+
+        startService(new Intent(this, ScanService.class));
+
+        m_settingsManager = SettingsManager.getInstance(this);
+
+        setFragments();
 
         m_databaseChangeNotifier = new DatabaseChangeNotifier(this);
         m_databaseChangeNotifier.start();
-
-        startService(new Intent(this, ScanService.class));
     }
 
     @Override
@@ -46,6 +49,9 @@ public class MainActivity extends AppCompatActivity implements IDatabaseChangeLi
         super.onDestroy();
 
         m_databaseChangeNotifier.stop();
+
+        m_settingsManager.unbindFromService();
+        m_settingsManager = null;
     }
 
     @Override
@@ -63,7 +69,7 @@ public class MainActivity extends AppCompatActivity implements IDatabaseChangeLi
 
         if (findViewById(R.id.frameFragment) != null)
         {
-            switch (SettingsManager.getInstance(this).getCurrentFragmentType())
+            switch (m_settingsManager.getCurrentFragmentType())
             {
                 case Grid:
                     menu.removeItem(R.id.main_view_grid);
@@ -90,11 +96,11 @@ public class MainActivity extends AppCompatActivity implements IDatabaseChangeLi
         switch (item.getItemId())
         {
             case R.id.main_view_grid:
-                SettingsManager.getInstance(this).setCurrentFragmentType(Fragment.FragmentType.Grid);
+                m_settingsManager.setCurrentFragmentType(Fragment.FragmentType.Grid);
                 recreate();
                 break;
             case R.id.main_view_graph:
-                SettingsManager.getInstance(this).setCurrentFragmentType(Fragment.FragmentType.Graph);
+                m_settingsManager.setCurrentFragmentType(Fragment.FragmentType.Graph);
                 recreate();
                 break;
             case R.id.main_settings:
@@ -174,7 +180,7 @@ public class MainActivity extends AppCompatActivity implements IDatabaseChangeLi
         Fragment fragment;
         if (findViewById(R.id.frameFragment) != null)
         {
-            Fragment.FragmentType type = SettingsManager.getInstance(this).getCurrentFragmentType();
+            Fragment.FragmentType type = m_settingsManager.getCurrentFragmentType();
             fragment = getFragment(type);
             fragmentTransaction.replace(R.id.frameFragment, fragment, type.toTag());
         }

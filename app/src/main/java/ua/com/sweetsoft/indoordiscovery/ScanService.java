@@ -1,15 +1,21 @@
 package ua.com.sweetsoft.indoordiscovery;
 
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.res.Resources;
+import android.graphics.BitmapFactory;
 import android.net.wifi.WifiManager;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
 import android.provider.Settings;
+import android.support.v4.app.NotificationCompat;
 import android.support.v7.app.AlertDialog;
 import android.view.Window;
 import android.view.WindowManager;
@@ -19,12 +25,47 @@ import java.util.Timer;
 import ua.com.sweetsoft.indoordiscovery.apisafe.HandlerThread;
 import ua.com.sweetsoft.indoordiscovery.common.Information;
 import ua.com.sweetsoft.indoordiscovery.common.Logger;
+import ua.com.sweetsoft.indoordiscovery.common.ServiceMessageReceiver;
 import ua.com.sweetsoft.indoordiscovery.settings.SettingsManager;
 import ua.com.sweetsoft.indoordiscovery.wifi.StateChangedReceiver;
 
-public class ScanService extends Service implements Handler.Callback
+public class ScanService extends Service implements Handler.Callback, ServiceMessageReceiver.IReceiver
 {
-    private final ScanServiceMessenger m_messenger;
+    private static final int NOTIFICATION_ID = 1;
+    private static final boolean debugMode = true;
+
+    public enum MessageCode
+    {
+        ReceiveSetting(1),
+        WiFiStateChanged(2),
+        StopService(3);
+
+        private int m_i;
+
+        MessageCode(int i)
+        {
+            m_i = i;
+        }
+
+        public int toInt()
+        {
+            return m_i;
+        }
+
+        public static MessageCode fromInt(int i)
+        {
+            for (MessageCode mc : MessageCode.values())
+            {
+                if (mc.toInt() == i)
+                {
+                    return mc;
+                }
+            }
+            return null;
+        }
+    }
+
+    private final ServiceMessageReceiver m_messenger;
     private HandlerThread m_handlerThread;
     private SettingsManager m_settingsManager;
     private StateChangedReceiver m_stateChangeReceiver;
@@ -33,7 +74,7 @@ public class ScanService extends Service implements Handler.Callback
 
     public ScanService()
     {
-        m_messenger = new ScanServiceMessenger(this);
+        m_messenger = new ServiceMessageReceiver(this);
 
         Logger.enable(true);
     }
@@ -41,7 +82,7 @@ public class ScanService extends Service implements Handler.Callback
     @Override
     public IBinder onBind(Intent intent)
     {
-        return m_messenger.getBinder();
+        return m_messenger.onBind(intent);
     }
 
     @Override
@@ -59,6 +100,8 @@ public class ScanService extends Service implements Handler.Callback
         registerReceiver(m_stateChangeReceiver, new IntentFilter(WifiManager.WIFI_STATE_CHANGED_ACTION));
 
         checkedStartScan();
+
+        startForeground (NOTIFICATION_ID, createNotification());
     }
 
     @Override
@@ -68,45 +111,54 @@ public class ScanService extends Service implements Handler.Callback
 
         unregisterReceiver(m_stateChangeReceiver);
 
+        m_settingsManager = null;
+
         m_handlerThread.quitSafely();
 
         super.onDestroy();
     }
 
-    @Override
+/*    @Override
     public int onStartCommand(Intent intent, int flags, int startId)
     {
         super.onStartCommand(intent, flags, startId);
 
         return ScanService.START_STICKY;
-    }
+    }*/
 
     @Override
     public boolean handleMessage(Message msg)
     {
-        return handleMessage(ScanServiceMessenger.MessageCode.fromInt(msg.arg1), msg.arg2, 0);
-    }
-
-    public boolean handleMessage(ScanServiceMessenger.MessageCode mc, int arg1, int arg2)
-    {
         boolean handled = true;
 
-        switch (mc)
+        switch (MessageCode.fromInt(msg.what))
         {
             case ReceiveSetting:
-                if (m_settingsManager.receiveSetting(arg1, arg2))
+                if (m_settingsManager.receiveSetting(msg.arg1, msg.arg2))
                 {
-                    UpdateScan();
+                    updateScan();
                 }
                 break;
             case WiFiStateChanged:
-                CheckWiFiState(arg1);
+                if (!debugMode)
+                {
+                    checkWiFiState(msg.arg1);
+                }
+                break;
+            case StopService:
+                stopService();
                 break;
             default:
                 handled = false;
                 break;
         }
         return handled;
+    }
+
+    private void stopService()
+    {
+        stopForeground(true);
+        stopSelf();
     }
 
     private boolean isScannerStarted()
@@ -120,7 +172,7 @@ public class ScanService extends Service implements Handler.Callback
         {
             //if (!getPackageManager().hasSystemFeature(PackageManager.FEATURE_WIFI))
             WifiManager manager = (WifiManager) getSystemService(Context.WIFI_SERVICE);
-            if (ua.com.sweetsoft.indoordiscovery.apisafe.WifiManager.isScanAvailable(manager))
+            if (debugMode || ua.com.sweetsoft.indoordiscovery.apisafe.WifiManager.isScanAvailable(manager))
             {
                 startScan();
             }
@@ -131,7 +183,7 @@ public class ScanService extends Service implements Handler.Callback
     {
         if (!isScannerStarted())
         {
-            m_syncTask = new ScanSyncTimerTask(this);
+            m_syncTask = new ScanSyncTimerTask(this, debugMode);
             m_syncTimer = new Timer(true);
             m_syncTimer.scheduleAtFixedRate(m_syncTask, 0, m_settingsManager.getScanPeriod() * 1000);
         }
@@ -152,16 +204,18 @@ public class ScanService extends Service implements Handler.Callback
         }
     }
 
-    private void UpdateScan()
+    private void updateScan()
     {
         if (isScannerStarted())
         {
             stopScan();
         }
         checkedStartScan();
+
+        updateNotification();
     }
 
-    private void CheckWiFiState(int state)
+    private void checkWiFiState(int state)
     {
         switch (state)
         {
@@ -169,11 +223,13 @@ public class ScanService extends Service implements Handler.Callback
                 if (isScannerStarted())
                 {
                     stopScan();
+                    updateNotification();
                     alertWiFiDisabled();
                 }
                 break;
             case WifiManager.WIFI_STATE_ENABLED:
                 checkedStartScan();
+                updateNotification();
                 break;
             case WifiManager.WIFI_STATE_DISABLING:
             case WifiManager.WIFI_STATE_ENABLING:
@@ -220,6 +276,38 @@ public class ScanService extends Service implements Handler.Callback
         }
         dialogWindow.setType(type);
         alertDialog.show();
+    }
+
+    private Notification createNotification()
+    {
+        boolean scannerStarted = isScannerStarted();
+
+        Intent intentGoToApp = new Intent(this, MainActivity.class);
+        Intent intentStopService = new Intent(this, ScanServiceStopper.class);
+        PendingIntent pIntentGoToApp = PendingIntent.getActivity(this, 0, intentGoToApp, PendingIntent.FLAG_UPDATE_CURRENT);
+        PendingIntent pIntentStopService = PendingIntent.getActivity(this, 0, intentStopService, PendingIntent.FLAG_UPDATE_CURRENT);
+
+        Resources res = getResources();
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(this);
+
+        builder.setContentIntent(pIntentGoToApp);
+        builder.setSmallIcon(R.drawable.status_scan);
+        builder.setLargeIcon(BitmapFactory.decodeResource(res, R.mipmap.ic_launcher));
+        builder.setWhen(System.currentTimeMillis());
+        builder.setAutoCancel(false);
+        builder.setContentTitle(res.getString(scannerStarted ? R.string.notify_title_scan_on : R.string.notify_title_scan_off));
+        builder.setContentText(res.getString(R.string.notify_text));
+        builder.addAction(R.drawable.status_scan, res.getString(R.string.notify_action_stop_service), pIntentStopService);
+
+        Notification notification = builder.build();
+        notification.iconLevel = scannerStarted ? 1 : 0;
+        return notification;
+    }
+
+    private void updateNotification()
+    {
+        NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        notificationManager.notify(NOTIFICATION_ID, createNotification());
     }
 
 }

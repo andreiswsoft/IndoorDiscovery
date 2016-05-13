@@ -6,17 +6,20 @@ import android.os.Parcelable;
 public class NetworkData extends Data
 {
     private String m_ssid;
+    private String m_bssid;
 
     public NetworkData()
     {
         m_ssid = "";
+        m_bssid = "";
     }
 
-    public NetworkData(int id, String ssid)
+    public NetworkData(int id, String ssid, String bssid)
     {
         super(id);
 
         m_ssid = ssid;
+        m_bssid = bssid;
     }
 
     public String getSSID()
@@ -27,6 +30,16 @@ public class NetworkData extends Data
     public void setSSID(String ssid)
     {
         m_ssid = ssid;
+    }
+
+    public String getBSSID()
+    {
+        return m_bssid;
+    }
+
+    public void setBSSID(String bssid)
+    {
+        m_bssid = bssid;
     }
 
     @Override
@@ -41,6 +54,7 @@ public class NetworkData extends Data
         super.writeToParcel(parcel, flags);
 
         parcel.writeString(m_ssid);
+        parcel.writeString(m_bssid);
     }
 
     private NetworkData(Parcel parcel)
@@ -48,6 +62,7 @@ public class NetworkData extends Data
         super(parcel);
 
         m_ssid = parcel.readString();
+        m_bssid = parcel.readString();
     }
 
     public static final Parcelable.Creator<NetworkData> CREATOR = new Parcelable.Creator<NetworkData>()

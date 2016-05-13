@@ -11,19 +11,20 @@ import ua.com.sweetsoft.indoordiscovery.wifi.ScanReceiver;
 
 public class ScanSyncTimerTask extends TimerTask
 {
-    private static final boolean debugMode = false;
     private static final String debugIntent = "ua.com.sweetsoft.indoordiscovery.SCAN_RESULTS";
 
+    private final boolean m_debugMode;
     private boolean m_scanning = false;
     private boolean m_autorunScan = false;
     private Context m_context;
     private ScanReceiver m_scanReceiver;
 
-    public ScanSyncTimerTask(Context context)
+    public ScanSyncTimerTask(Context context, boolean debugMode)
     {
+        m_debugMode = debugMode;
         m_context = context;
         m_scanReceiver = new ScanReceiver(this);
-        if (debugMode)
+        if (m_debugMode)
         {
             m_context.registerReceiver(m_scanReceiver, new IntentFilter(debugIntent));
         }
@@ -50,7 +51,7 @@ public class ScanSyncTimerTask extends TimerTask
         {
             m_autorunScan = false;
 
-            if (debugMode)
+            if (m_debugMode)
             {
                 m_context.sendBroadcast(new Intent(debugIntent));
             }

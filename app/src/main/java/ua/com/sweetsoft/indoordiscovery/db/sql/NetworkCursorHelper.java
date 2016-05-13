@@ -20,4 +20,14 @@ public class NetworkCursorHelper extends CursorHelper
         }
         return ssid;
     }
+
+    public String getBSSID()
+    {
+        String bssid = null;
+        if (m_cursor != null)
+        {
+            bssid = m_cursor.getString(Config.COLUMN_NETWORK_BSSID_INDEX);
+        }
+        return bssid;
+    }
 }

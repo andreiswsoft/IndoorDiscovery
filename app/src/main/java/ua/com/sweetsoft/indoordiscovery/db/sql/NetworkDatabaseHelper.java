@@ -11,7 +11,8 @@ public class NetworkDatabaseHelper extends DatabaseHelper
     private static final String CREATE_SCRIPT = "create table "
             + Config.TABLE_NETWORK + " ("
             + Config.COLUMN_ID + " integer primary key autoincrement, "
-            + Config.COLUMN_NETWORK_SSID + " text not null);";
+            + Config.COLUMN_NETWORK_SSID + " text not null, "
+            + Config.COLUMN_NETWORK_BSSID + " text not null);";
 
     public NetworkDatabaseHelper(Context context)
     {
@@ -38,6 +39,7 @@ public class NetworkDatabaseHelper extends DatabaseHelper
     {
         ContentValues values = new ContentValues();
         values.put(Config.COLUMN_NETWORK_SSID, data.getSSID());
+        values.put(Config.COLUMN_NETWORK_BSSID, data.getBSSID());
 
         return insert(null, values);
     }
@@ -46,6 +48,7 @@ public class NetworkDatabaseHelper extends DatabaseHelper
     {
         ContentValues values = new ContentValues();
         values.put(Config.COLUMN_NETWORK_SSID, data.getSSID());
+        values.put(Config.COLUMN_NETWORK_BSSID, data.getBSSID());
 
         update(values, Config.COLUMN_ID + "=" + Integer.toString(data.getId()), null);
     }

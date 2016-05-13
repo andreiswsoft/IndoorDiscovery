@@ -22,15 +22,18 @@ public class Network implements Serializable
     private int m_id;
     @DatabaseField(canBeNull = false, columnName = Config.COLUMN_NETWORK_SSID)
     private String m_ssid;
+    @DatabaseField(canBeNull = false, columnName = Config.COLUMN_NETWORK_BSSID)
+    private String m_bssid;
 
     public Network()
     {
     }
 
-    public Network(final String ssid)
+    public Network(final String ssid, final String bssid)
     {
         m_id = 0;
         m_ssid = ssid;
+        m_bssid = bssid;
     }
 
     public int getId()
@@ -41,6 +44,11 @@ public class Network implements Serializable
     public String getSsid()
     {
         return m_ssid;
+    }
+
+    public String getBssid()
+    {
+        return m_bssid;
     }
 
     public List<SignalSample> getSignalSamples(boolean ascending)

@@ -7,7 +7,7 @@ import android.net.wifi.WifiManager;
 import android.os.Handler;
 import android.os.Message;
 
-import ua.com.sweetsoft.indoordiscovery.ScanServiceMessenger;
+import ua.com.sweetsoft.indoordiscovery.ScanService;
 
 public class StateChangedReceiver extends BroadcastReceiver
 {
@@ -25,8 +25,8 @@ public class StateChangedReceiver extends BroadcastReceiver
     public void onReceive(Context context, Intent intent)
     {
         Message message = new Message();
-        message.arg1 = ScanServiceMessenger.MessageCode.WiFiStateChanged.toInt();
-        message.arg2 = intent.getIntExtra(WifiManager.EXTRA_WIFI_STATE, -1);
+        message.what = ScanService.MessageCode.WiFiStateChanged.toInt();
+        message.arg1 = intent.getIntExtra(WifiManager.EXTRA_WIFI_STATE, -1);
         m_handler.sendMessage(message);
     }
 }

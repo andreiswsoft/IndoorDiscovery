@@ -1,5 +1,5 @@
 #
-# generated on 2016/04/27 12:02:14
+# generated on 2016/05/11 05:16:00
 #
 # --table-start--
 dataClass=ua.com.sweetsoft.indoordiscovery.db.ormlite.Network
@@ -13,6 +13,11 @@ generatedId=true
 # --field-start--
 fieldName=m_ssid
 columnName=ssid
+canBeNull=false
+# --field-end--
+# --field-start--
+fieldName=m_bssid
+columnName=bssid
 canBeNull=false
 # --field-end--
 # --table-fields-end--

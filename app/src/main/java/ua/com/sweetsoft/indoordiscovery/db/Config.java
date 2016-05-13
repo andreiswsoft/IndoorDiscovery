@@ -14,7 +14,9 @@ public interface Config extends BaseColumns
     // Network table
     String TABLE_NETWORK = "network";
     String COLUMN_NETWORK_SSID = "ssid";
+    String COLUMN_NETWORK_BSSID = "bssid";
     int COLUMN_NETWORK_SSID_INDEX = 1;
+    int COLUMN_NETWORK_BSSID_INDEX = 2;
 
     // Signal sample table
     String TABLE_SIGNALSAMPLE = "signalsample";
