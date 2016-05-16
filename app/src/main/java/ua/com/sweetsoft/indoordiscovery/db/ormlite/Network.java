@@ -90,6 +90,19 @@ public class Network implements Serializable
         return signalSample;
     }
 
+    public long getSignalSampleCount()
+    {
+        long count = 0;
+
+        SignalSampleCursor cursor = SignalSample.getCursorForNetwork(this, true);
+        if (cursor != null)
+        {
+            count = cursor.getCount();
+            cursor.close();
+        }
+        return count;
+    }
+
     public static NetworkCursor getCursor()
     {
         NetworkCursor networkCursor = null;

@@ -3,6 +3,7 @@ package ua.com.sweetsoft.indoordiscovery.db.ormlite;
 import com.j256.ormlite.stmt.PreparedDelete;
 
 import java.sql.SQLException;
+import java.util.List;
 
 import ua.com.sweetsoft.indoordiscovery.common.Logger;
 
@@ -35,6 +36,21 @@ public abstract class Dao<T>
 
     public abstract T read(T t);
 
+    public void delete(T t)
+    {
+        if (t != null)
+        {
+            try
+            {
+                m_dao.delete(t);
+            }
+            catch (SQLException e)
+            {
+                Logger.logException(e, "dao.delete(-T-)");
+            }
+        }
+    }
+
     public void delete(PreparedDelete<T> t)
     {
         if (t != null)
@@ -49,4 +65,22 @@ public abstract class Dao<T>
             }
         }
     }
+
+    public List<T> getAll()
+    {
+        List<T> list = null;
+        if (m_dao != null)
+        {
+            try
+            {
+                list = m_dao.queryForAll();
+            }
+            catch (SQLException e)
+            {
+                Logger.logException(e, "DAO.queryForAll()");
+            }
+        }
+        return list;
+    }
+
 }

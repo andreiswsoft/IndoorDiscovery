@@ -10,12 +10,15 @@ import com.j256.ormlite.stmt.PreparedDelete;
 import com.j256.ormlite.stmt.Where;
 
 import java.sql.SQLException;
+import java.util.List;
 
 import ua.com.sweetsoft.indoordiscovery.common.Logger;
 import ua.com.sweetsoft.indoordiscovery.db.Config;
 import ua.com.sweetsoft.indoordiscovery.db.DatabaseChangeNotifier;
 import ua.com.sweetsoft.indoordiscovery.db.ormlite.DatabaseHelper;
 import ua.com.sweetsoft.indoordiscovery.db.ormlite.DatabaseHelperFactory;
+import ua.com.sweetsoft.indoordiscovery.db.ormlite.Network;
+import ua.com.sweetsoft.indoordiscovery.db.ormlite.NetworkDao;
 import ua.com.sweetsoft.indoordiscovery.db.ormlite.SignalSample;
 import ua.com.sweetsoft.indoordiscovery.db.ormlite.SignalSampleDao;
 import ua.com.sweetsoft.indoordiscovery.settings.SettingsManager;
@@ -29,7 +32,8 @@ public class DatabaseUpdateReceiver extends BroadcastReceiver
     @Override
     public void onReceive(Context context, Intent intent)
     {
-        deleteExpiredData(context);
+        deleteExpiredSignalSamples(context);
+        deleteAbsentNetworks(context);
 
         // Wait for data will stored to database (without this current levels will not be displayed)
         SystemClock.sleep(100);
@@ -37,7 +41,7 @@ public class DatabaseUpdateReceiver extends BroadcastReceiver
         DatabaseChangeNotifier.notifyChange(context);
     }
 
-    private void deleteExpiredData(Context context)
+    private void deleteExpiredSignalSamples(Context context)
     {
         SettingsManager settingsManager = SettingsManager.getInstance(context);
         if (settingsManager != null)
@@ -85,4 +89,34 @@ public class DatabaseUpdateReceiver extends BroadcastReceiver
             } while (false);
         }
     }
+
+    private void deleteAbsentNetworks(Context context)
+    {
+        do
+        {
+            DatabaseHelper databaseHelper = DatabaseHelperFactory.getHelper();
+            if (databaseHelper == null)
+            {
+                break;
+            }
+            NetworkDao networkDao = databaseHelper.getNetworkDao();
+            if (networkDao == null)
+            {
+                break;
+            }
+            List<Network> networks = networkDao.getAll();
+            if (networks == null)
+            {
+                break;
+            }
+            for (Network network : networks)
+            {
+                if (network.getSignalSampleCount() == 0)
+                {
+                    networkDao.delete(network);
+                }
+            }
+        } while (false);
+    }
+
 }
