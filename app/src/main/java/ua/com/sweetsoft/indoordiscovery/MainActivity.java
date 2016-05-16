@@ -49,9 +49,6 @@ public class MainActivity extends AppCompatActivity implements IDatabaseChangeLi
         super.onDestroy();
 
         m_databaseChangeNotifier.stop();
-
-        m_settingsManager.unbindFromService();
-        m_settingsManager = null;
     }
 
     @Override

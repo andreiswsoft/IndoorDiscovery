@@ -1,12 +1,10 @@
 package ua.com.sweetsoft.indoordiscovery;
 
-import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
 
-import ua.com.sweetsoft.indoordiscovery.common.Logger;
 import ua.com.sweetsoft.indoordiscovery.common.ServiceMessageSender;
 import ua.com.sweetsoft.indoordiscovery.settings.SettingsManager;
 
@@ -39,7 +37,7 @@ public class ScanServiceStopper extends AppCompatActivity implements ServiceMess
         SettingsManager settingsManager = SettingsManager.checkInstance();
         if (settingsManager != null)
         {
-            settingsManager.unbindFromService();
+            settingsManager.stopSyncChanges();
         }
 
         Message message = Message.obtain(null, ScanService.MessageCode.StopService.toInt(), 0, 0);

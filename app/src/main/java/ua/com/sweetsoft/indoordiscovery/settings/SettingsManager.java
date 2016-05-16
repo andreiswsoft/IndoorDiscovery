@@ -5,16 +5,16 @@ import android.content.SharedPreferences;
 import android.os.Message;
 import android.preference.PreferenceManager;
 
+import java.lang.ref.WeakReference;
+
 import ua.com.sweetsoft.indoordiscovery.R;
 import ua.com.sweetsoft.indoordiscovery.ScanService;
-import ua.com.sweetsoft.indoordiscovery.common.Information;
-import ua.com.sweetsoft.indoordiscovery.common.Logger;
 import ua.com.sweetsoft.indoordiscovery.common.ServiceMessageSender;
 import ua.com.sweetsoft.indoordiscovery.fragment.Fragment;
 
 public final class SettingsManager implements SharedPreferences.OnSharedPreferenceChangeListener, ServiceMessageSender.ISender
 {
-    private static volatile SettingsManager m_instance = null;
+    private static volatile WeakReference<SettingsManager> m_instance = new WeakReference<SettingsManager>(null);
 
     private Context m_context;
     private ServiceMessageSender m_messenger = null;
@@ -28,22 +28,26 @@ public final class SettingsManager implements SharedPreferences.OnSharedPreferen
 
     public static SettingsManager checkInstance()
     {
-        return m_instance;
+        return m_instance.get();
     }
 
     public static SettingsManager getInstance(Context context)
     {
-        if (m_instance == null)
+        SettingsManager instance = m_instance.get();
+
+        if (instance == null)
         {
             synchronized (SettingsManager.class)
             {
-                if (m_instance == null)
+                instance = m_instance.get();
+                if (instance == null)
                 {
-                    m_instance = new SettingsManager(context.getApplicationContext());
+                    instance = new SettingsManager(context.getApplicationContext());
+                    m_instance = new WeakReference<SettingsManager>(instance);
                 }
             }
         }
-        return m_instance;
+        return instance;
     }
 
     private SettingsManager(Context context)
@@ -51,11 +55,6 @@ public final class SettingsManager implements SharedPreferences.OnSharedPreferen
         m_context = context;
 
         ReadSettings();
-
-        if (Information.isApplicationMainProcess(context))
-        {
-            startTrackChanges();
-        }
     }
 
     @Override
@@ -63,32 +62,22 @@ public final class SettingsManager implements SharedPreferences.OnSharedPreferen
     {
         super.finalize();
 
-        stopTrackChanges();
+        stopSyncChanges();
     }
 
-    private void startTrackChanges()
-    {
-        bindToService();
-        getPreferences().registerOnSharedPreferenceChangeListener(this);
-    }
-
-    private void stopTrackChanges()
-    {
-        getPreferences().unregisterOnSharedPreferenceChangeListener(this);
-        unbindFromService();
-    }
-
-    private void bindToService()
+    public void startSyncChanges()
     {
         if (m_messenger == null)
         {
             m_messenger = new ServiceMessageSender(this);
             m_messenger.bind(m_context, ScanService.class);
         }
+        getPreferences().registerOnSharedPreferenceChangeListener(this);
     }
 
-    public void unbindFromService()
+    public void stopSyncChanges()
     {
+        getPreferences().unregisterOnSharedPreferenceChangeListener(this);
         if (m_messenger != null)
         {
             m_messenger.unbind(m_context);

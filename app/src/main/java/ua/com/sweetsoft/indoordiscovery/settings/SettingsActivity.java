@@ -106,8 +106,17 @@ public class SettingsActivity extends AppCompatPreferenceActivity
         super.onCreate(savedInstanceState);
 
         m_settingsManager = SettingsManager.getInstance(this);
+        m_settingsManager.startSyncChanges();
 
         setupActionBar();
+    }
+
+    @Override
+    protected void onDestroy()
+    {
+        m_settingsManager.stopSyncChanges();
+
+        super.onDestroy();
     }
 
     private void setupActionBar()
