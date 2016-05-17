@@ -62,9 +62,9 @@ public class ScanReceiver extends ua.com.sweetsoft.indoordiscovery.ScanReceiver
     private void generateScanResults(long time)
     {
         Random random = new Random();
-        for (int cnt = 1; cnt <= 5; cnt++)
+        for (int cnt = 1; cnt <= 20; cnt++)
         {
-            String ssid = "network " + String.valueOf(cnt);
+            String ssid = "WiFi network with " + String.valueOf(cnt) + " Service Set Identifier";
             String bssid = String.valueOf(cnt);
             Network network = addNetwork(new Network(ssid, bssid));
             if (network != null)

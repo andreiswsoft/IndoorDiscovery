@@ -96,7 +96,7 @@ public class FragmentGrid extends Fragment
     @Override
     public void refresh()
     {
-        m_adapter.refresh();
+        m_adapter.beginRefresh();
     }
 
 }

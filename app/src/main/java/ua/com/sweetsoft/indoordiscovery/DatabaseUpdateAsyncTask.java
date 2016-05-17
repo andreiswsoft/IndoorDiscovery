@@ -1,9 +1,7 @@
 package ua.com.sweetsoft.indoordiscovery;
 
-import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.Intent;
-import android.os.SystemClock;
+import android.os.AsyncTask;
 
 import com.j256.ormlite.stmt.DeleteBuilder;
 import com.j256.ormlite.stmt.PreparedDelete;
@@ -23,27 +21,29 @@ import ua.com.sweetsoft.indoordiscovery.db.ormlite.SignalSample;
 import ua.com.sweetsoft.indoordiscovery.db.ormlite.SignalSampleDao;
 import ua.com.sweetsoft.indoordiscovery.settings.SettingsManager;
 
-public class DatabaseUpdateReceiver extends BroadcastReceiver
+public class DatabaseUpdateAsyncTask extends AsyncTask<Void, Void, Void>
 {
-    public DatabaseUpdateReceiver()
+    private Context m_context;
+
+    public DatabaseUpdateAsyncTask(Context context)
     {
+        m_context = context;
     }
 
     @Override
-    public void onReceive(Context context, Intent intent)
+    protected Void doInBackground(Void... params)
     {
-        deleteExpiredSignalSamples(context);
-        deleteAbsentNetworks(context);
+        deleteExpiredSignalSamples();
+        deleteAbsentNetworks();
 
-        // Wait for data will stored to database (without this current levels will not be displayed)
-        SystemClock.sleep(100);
+        DatabaseChangeNotifier.notifyChange(m_context);
 
-        DatabaseChangeNotifier.notifyChange(context);
+        return null;
     }
 
-    private void deleteExpiredSignalSamples(Context context)
+    private void deleteExpiredSignalSamples()
     {
-        SettingsManager settingsManager = SettingsManager.getInstance(context);
+        SettingsManager settingsManager = SettingsManager.getInstance(m_context);
         if (settingsManager != null)
         {
             long expirationTime = System.currentTimeMillis() / 1000L - settingsManager.getDataStorageDuration();
@@ -90,7 +90,7 @@ public class DatabaseUpdateReceiver extends BroadcastReceiver
         }
     }
 
-    private void deleteAbsentNetworks(Context context)
+    private void deleteAbsentNetworks()
     {
         do
         {
@@ -118,5 +118,4 @@ public class DatabaseUpdateReceiver extends BroadcastReceiver
             }
         } while (false);
     }
-
 }

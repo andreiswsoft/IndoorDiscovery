@@ -1,5 +1,7 @@
 package ua.com.sweetsoft.indoordiscovery.fragment;
 
+import android.content.Context;
+
 import ua.com.sweetsoft.indoordiscovery.fragment.graph.FragmentGraph;
 import ua.com.sweetsoft.indoordiscovery.fragment.grid.FragmentGrid;
 

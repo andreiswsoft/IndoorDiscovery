@@ -23,6 +23,8 @@ import ua.com.sweetsoft.indoordiscovery.fragment.Fragment;
 
 public class FragmentGraph extends Fragment
 {
+    private List<SerieData> m_dataList = new ArrayList<SerieData>();
+    private int m_refreshCounter = 0;
     private IGraphListener m_listener;
     private XYPlot m_graph;
 
@@ -93,31 +95,57 @@ public class FragmentGraph extends Fragment
     @Override
     public void refresh()
     {
+        beginRefresh();
+    }
+
+    public void beginRefresh()
+    {
+        synchronized (FragmentGraph.class)
+        {
+            if (m_refreshCounter == 0)
+            {
+                runRefreshTask();
+            }
+            if (m_refreshCounter < 2)
+            {
+                m_refreshCounter++;
+            }
+        }
+    }
+
+    public void endRefresh(List<SerieData> viewDataList)
+    {
+        synchronized (FragmentGraph.class)
+        {
+            m_dataList = viewDataList;
+            m_refreshCounter--;
+            if (m_refreshCounter != 0)
+            {
+                runRefreshTask();
+            }
+        }
+
+        refreshGraph();
+    }
+
+    private void runRefreshTask()
+    {
+        RefreshAsyncTask task = new RefreshAsyncTask(this);
+        task.execute();
+    }
+
+    private void refreshGraph()
+    {
         m_graph.clear();
 
-        NetworkCursor networkCursor = Network.getCursor();
-        if (networkCursor != null)
+ // missed samples
+        for (SerieData data : m_dataList)
         {
-            while (networkCursor.hasNext())
-            {
-                Network network = networkCursor.getNext();
-                List<SignalSample> signalSamples = network.getSignalSamples(true);
-                if (signalSamples != null)
-                {
-                    List<Integer> levels = new ArrayList<Integer>();
-// missed samples
-                    for (SignalSample signalSample : signalSamples)
-                    {
-                        levels.add(signalSample.getLevel());
-                    }
-                    XYSeries series = new SimpleXYSeries(levels, SimpleXYSeries.ArrayFormat.Y_VALS_ONLY, network.getSsid());
-                    int lineColor = Color.rgb(10 * network.getId(), 26 * network.getId(), 42 * network.getId());
-                    int pointColor = Color.rgb(5 * network.getId(), 12 * network.getId(), 21 * network.getId());
-                    LineAndPointFormatter seriesFormat = new LineAndPointFormatter(lineColor, pointColor, null, null);
-                    m_graph.addSeries(series, seriesFormat);
-                }
-            }
-            networkCursor.close();
+            XYSeries series = new SimpleXYSeries(data.getSignalLevels(), SimpleXYSeries.ArrayFormat.Y_VALS_ONLY, data.getNetworkSsid());
+            int lineColor = Color.rgb(10 * data.getNetworkId(), 26 * data.getNetworkId(), 42 * data.getNetworkId());
+            int pointColor = Color.rgb(5 * data.getNetworkId(), 12 * data.getNetworkId(), 21 * data.getNetworkId());
+            LineAndPointFormatter seriesFormat = new LineAndPointFormatter(lineColor, pointColor, null, null);
+            m_graph.addSeries(series, seriesFormat);
         }
         m_graph.redraw();
     }

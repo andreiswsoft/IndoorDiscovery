@@ -1,13 +1,14 @@
 package ua.com.sweetsoft.indoordiscovery.db.ormlite;
 
-import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.field.DatabaseField;
 
 import java.io.Serializable;
-import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 import ua.com.sweetsoft.indoordiscovery.common.Logger;
 import ua.com.sweetsoft.indoordiscovery.db.Config;
+import ua.com.sweetsoft.indoordiscovery.settings.SettingsManager;
 
 public class SignalSample implements Serializable
 {
@@ -58,24 +59,80 @@ public class SignalSample implements Serializable
     {
         SignalSampleCursor signalSampleCursor = null;
 
+        SignalSampleCursor cursor = getCursor();
+        if (cursor != null)
+        {
+            if (cursor.selectNetwork(network.getId(), ascending))
+            {
+                signalSampleCursor = cursor;
+            }
+            else
+            {
+                cursor.close();
+            }
+        }
+        return signalSampleCursor;
+    }
+
+    public static List<SignalSample> getAllForNetwork(Network network, boolean ascending)
+    {
+        List<SignalSample> samples = null;
+
+        SignalSampleCursor cursor = getCursorForNetwork(network, ascending);
+        if (cursor != null)
+        {
+            samples = read(cursor);
+            cursor.close();
+        }
+        return samples;
+    }
+
+    public static List<SignalSample> getAllCurrent()
+    {
+        List<SignalSample> samples = null;
+
+        SettingsManager manager = SettingsManager.checkInstance();
+        if (manager != null)
+        {
+            SignalSampleCursor cursor = getCursor();
+            if (cursor != null)
+            {
+                long expirationTime = manager.calculateExpirationTime();
+                if (cursor.selectAfterTime(expirationTime))
+                {
+                    samples = read(cursor);
+                }
+                cursor.close();
+            }
+        }
+        return samples;
+    }
+
+    private static SignalSampleCursor getCursor()
+    {
+        SignalSampleCursor signalSampleCursor = null;
+
         DatabaseHelper databaseHelper = DatabaseHelperFactory.getHelper();
         if (databaseHelper != null)
         {
             SignalSampleDao signalSampleDao = databaseHelper.getSignalSampleDao();
             if (signalSampleDao != null)
             {
-                SignalSampleCursor cursor = new SignalSampleCursor(signalSampleDao);
-                if (cursor.select(network.getId(), ascending))
-                {
-                    signalSampleCursor = cursor;
-                }
-                else
-                {
-                    cursor.close();
-                }
+                signalSampleCursor = new SignalSampleCursor(signalSampleDao);
             }
         }
         return signalSampleCursor;
+    }
+
+    private static List<SignalSample> read(SignalSampleCursor cursor)
+    {
+        List<SignalSample> samples = new ArrayList<SignalSample>();
+        while (cursor.hasNext())
+        {
+            SignalSample sample = cursor.getNext();
+            samples.add(sample);
+        }
+        return samples;
     }
 
 }

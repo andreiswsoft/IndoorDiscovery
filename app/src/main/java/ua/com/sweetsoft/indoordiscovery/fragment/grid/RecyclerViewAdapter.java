@@ -5,14 +5,15 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import ua.com.sweetsoft.indoordiscovery.R;
-import ua.com.sweetsoft.indoordiscovery.db.ormlite.Network;
-import ua.com.sweetsoft.indoordiscovery.db.ormlite.NetworkCursor;
-import ua.com.sweetsoft.indoordiscovery.db.ormlite.SignalSample;
 
 public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewHolder>
 {
-    private NetworkCursor m_cursor = null;
+    private List<RecyclerViewData> m_viewDataList = new ArrayList<RecyclerViewData>();
+    private int m_refreshCounter = 0;
     private final IGridListener m_listener;
 
     public RecyclerViewAdapter(IGridListener listener)
@@ -30,16 +31,10 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewHolder
     @Override
     public void onBindViewHolder(final RecyclerViewHolder holder, int position)
     {
-        Network network = m_cursor.moveToPosition(position);
-        holder.m_networkId = network.getId();
-        holder.m_network.setText(network.getSsid());
-        String signalLevel = "-";
-        SignalSample signalSample = network.getCurrentSignalSample(holder.m_view.getContext());
-        if (signalSample != null)
-        {
-            signalLevel = String.valueOf(signalSample.getLevel());
-        }
-        holder.m_signalLevel.setText(signalLevel);
+        RecyclerViewData viewData = m_viewDataList.get(position);
+        holder.m_networkId = viewData.getNetworkId();
+        holder.m_network.setText(viewData.getNetworkSsid());
+        holder.m_signalLevel.setText(viewData.getSignalLevel());
 
         holder.m_view.setOnClickListener(new View.OnClickListener()
         {
@@ -57,30 +52,43 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewHolder
     @Override
     public int getItemCount()
     {
-        return (m_cursor != null ? (int) m_cursor.getCount() : 0);
+        return m_viewDataList.size();
     }
 
-    public void refresh()
+    public void beginRefresh()
     {
-        if (m_cursor != null)
+        synchronized (RecyclerViewAdapter.class)
         {
-            m_cursor.close();
-            m_cursor = null;
-        }
-        m_cursor = Network.getCursor();
-        if (m_cursor != null)
-        {
-            notifyDataSetChanged();
+            if (m_refreshCounter == 0)
+            {
+                runRefreshTask();
+            }
+            if (m_refreshCounter < 2)
+            {
+                m_refreshCounter++;
+            }
         }
     }
 
-    public void reset()
+    public void endRefresh(List<RecyclerViewData> viewDataList)
     {
-        if (m_cursor != null)
+        synchronized (RecyclerViewAdapter.class)
         {
-            m_cursor.close();
-            m_cursor = null;
+            m_viewDataList = viewDataList;
+            m_refreshCounter--;
+            if (m_refreshCounter != 0)
+            {
+                runRefreshTask();
+            }
         }
+
+        notifyDataSetChanged();
+    }
+
+    private void runRefreshTask()
+    {
+        RefreshAsyncTask task = new RefreshAsyncTask(this);
+        task.execute();
     }
 
 }

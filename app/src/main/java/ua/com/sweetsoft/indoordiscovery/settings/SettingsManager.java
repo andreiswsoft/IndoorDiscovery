@@ -284,4 +284,8 @@ public final class SettingsManager implements SharedPreferences.OnSharedPreferen
         m_currentFragmentType = type;
     }
 
+    public long calculateExpirationTime()
+    {
+        return (System.currentTimeMillis()/1000L - getScanPeriod());
+    }
 }

@@ -17,7 +17,7 @@ public class SignalSampleCursor extends Cursor<SignalSample, Integer>
         super(dao.getDao());
     }
 
-    public boolean select(int networkId, boolean ascending)
+    public boolean selectNetwork(int networkId, boolean ascending)
     {
         close();
         do
@@ -64,4 +64,53 @@ public class SignalSampleCursor extends Cursor<SignalSample, Integer>
 
         return (m_iterator != null);
     }
+
+    public boolean selectAfterTime(long time)
+    {
+        close();
+        do
+        {
+            if (m_dao == null)
+            {
+                break;
+            }
+            QueryBuilder<SignalSample, Integer> queryBuilder = m_dao.queryBuilder();
+            if (queryBuilder == null)
+            {
+                break;
+            }
+            Where<SignalSample, Integer> where = queryBuilder.where();
+            try
+            {
+                where.gt(Config.COLUMN_SIGNALSAMPLE_TIME, time);
+            }
+            catch (SQLException e)
+            {
+                Logger.logException(e, "Where.gt(\"" + Config.COLUMN_SIGNALSAMPLE_TIME + "\", " + String.valueOf(time) + ")");
+                break;
+            }
+            PreparedQuery<SignalSample> preparedQuery = null;
+            try
+            {
+                preparedQuery = queryBuilder.orderBy(Config.COLUMN_SIGNALSAMPLE_TIME, false).prepare();
+            }
+            catch (SQLException e)
+            {
+                Logger.logException(e, "QueryBuilder.orderBy(\"" + Config.COLUMN_SIGNALSAMPLE_TIME + "\", " + String.valueOf(false) + ")");
+                break;
+            }
+            try
+            {
+                m_iterator = m_dao.iterator(preparedQuery);
+                m_position = 0;
+            }
+            catch (SQLException e)
+            {
+                Logger.logException(e, "Dao.iterator(...)");
+            }
+        } while (false);
+
+        return (m_iterator != null);
+    }
+
 }

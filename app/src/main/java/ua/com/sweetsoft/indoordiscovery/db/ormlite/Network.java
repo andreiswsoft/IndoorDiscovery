@@ -97,7 +97,10 @@ public class Network implements Serializable
         SignalSampleCursor cursor = SignalSample.getCursorForNetwork(this, true);
         if (cursor != null)
         {
-            count = cursor.getCount();
+            if (cursor.hasNext())
+            {
+                count = cursor.getCount();
+            }
             cursor.close();
         }
         return count;
@@ -126,4 +129,21 @@ public class Network implements Serializable
         }
         return networkCursor;
     }
+
+    public static List<Network> getAll()
+    {
+        List<Network> networks = null;
+
+        DatabaseHelper databaseHelper = DatabaseHelperFactory.getHelper();
+        if (databaseHelper != null)
+        {
+            NetworkDao networkDao = databaseHelper.getNetworkDao();
+            if (networkDao != null)
+            {
+                networks = networkDao.getAll();
+            }
+        }
+        return networks;
+    }
+
 }

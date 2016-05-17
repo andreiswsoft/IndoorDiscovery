@@ -37,7 +37,6 @@
             android:exported="false"
             android:process=":scanService">
         </service>
-
         <receiver
             android:name=".ScanServiceStarter"
             android:enabled="true"
@@ -48,14 +47,14 @@
                 <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
         </receiver>
+        <activity
+            android:name=".ScanServiceStopper">
+        </activity>
         <receiver
             android:name=".wifi.ScanReceiver"
             android:enabled="true"
             android:exported="true">
         </receiver>
-        <activity
-            android:name=".ScanServiceStopper">
-        </activity>
 
         <provider
             android:name=".wifi.NetworkContentProvider"
@@ -79,15 +78,6 @@
                 android:value="ua.com.sweetsoft.indoordiscovery.MainActivity"/>
         </activity>
 
-        <receiver
-            android:name=".DatabaseUpdateReceiver"
-            android:enabled="true"
-            android:exported="false">
-            <intent-filter>
-                <action android:name="ua.com.sweetsoft.indoordiscovery.action.databaseUpdate"/>
-                <category android:name="android.intent.category.DEFAULT"/>
-            </intent-filter>
-        </receiver>
         <receiver
             android:name=".wifi.StateChangedReceiver"
             android:enabled="true"

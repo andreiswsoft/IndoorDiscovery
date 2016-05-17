@@ -8,8 +8,6 @@ import ua.com.sweetsoft.indoordiscovery.settings.SettingsManager;
 
 public class ScanReceiver extends BroadcastReceiver
 {
-    private static final String databaseUpdateIntent = "ua.com.sweetsoft.indoordiscovery.action.databaseUpdate";
-
     private ScanSyncTimerTask m_scanTask;
 
     protected ScanReceiver()
@@ -30,7 +28,8 @@ public class ScanReceiver extends BroadcastReceiver
             m_scanTask.endScan();
         }
 
-        context.sendBroadcast(new Intent(databaseUpdateIntent));
+        DatabaseUpdateAsyncTask task = new DatabaseUpdateAsyncTask(context.getApplicationContext());
+        task.execute();
     }
 
     protected long getScanTime(Context context)
