@@ -11,13 +11,13 @@ import android.view.ViewGroup;
 
 import ua.com.sweetsoft.indoordiscovery.R;
 import ua.com.sweetsoft.indoordiscovery.fragment.Fragment;
+import ua.com.sweetsoft.indoordiscovery.settings.SettingsManager;
 
-public class FragmentGrid extends Fragment
+public class FragmentGrid extends Fragment implements IGridListener
 {
     private static final String ARG_COLUMN_COUNT = "columnCount";
 
     private int m_columnCount = 1;
-    private IGridListener m_listener;
     private RecyclerViewAdapter m_adapter = null;
 
     public FragmentGrid()
@@ -63,7 +63,7 @@ public class FragmentGrid extends Fragment
                 recyclerView.setLayoutManager(new GridLayoutManager(context, m_columnCount));
             }
 
-            m_adapter = new RecyclerViewAdapter(m_listener);
+            m_adapter = new RecyclerViewAdapter(this);
             recyclerView.setAdapter(m_adapter);
         }
 
@@ -74,29 +74,34 @@ public class FragmentGrid extends Fragment
     public void onAttach(Context context)
     {
         super.onAttach(context);
-
-        if (context instanceof IGridListener)
-        {
-            m_listener = (IGridListener) context;
-        }
-        else
-        {
-            throw new RuntimeException(context.toString() + " must implement OnGridListener");
-        }
     }
 
     @Override
     public void onDetach()
     {
         super.onDetach();
-
-        m_listener = null;
     }
 
     @Override
     public void refresh()
     {
         m_adapter.beginRefresh();
+    }
+
+    @Override
+    public boolean onNetworkClick(int networkId)
+    {
+        boolean updated = false;
+        SettingsManager manager = SettingsManager.checkInstance();
+        if (manager != null)
+        {
+            if (manager.getFocusNetworkId() != networkId)
+            {
+                manager.setFocusNetworkId(networkId);
+                updated = true;
+            }
+        }
+        return updated;
     }
 
 }

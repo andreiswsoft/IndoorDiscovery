@@ -25,6 +25,7 @@ public final class SettingsManager implements SharedPreferences.OnSharedPreferen
     private int m_dataStorageDuration;
     // Non persists settings
     private Fragment.FragmentType m_currentFragmentType = Fragment.FragmentType.Grid;
+    private int m_focusNetworkId = 0;
 
     public static SettingsManager checkInstance()
     {
@@ -192,6 +193,12 @@ public final class SettingsManager implements SharedPreferences.OnSharedPreferen
         return id;
     }
 
+    public long calculateExpirationTime()
+    {
+        return (System.currentTimeMillis()/1000L - getScanPeriod());
+    }
+
+    // Persists settings
     public boolean isScannerOn()
     {
         return m_scannerOn;
@@ -274,6 +281,7 @@ public final class SettingsManager implements SharedPreferences.OnSharedPreferen
         return m_preferences;
     }
 
+    // Non persists settings
     public Fragment.FragmentType getCurrentFragmentType()
     {
         return m_currentFragmentType;
@@ -284,8 +292,14 @@ public final class SettingsManager implements SharedPreferences.OnSharedPreferen
         m_currentFragmentType = type;
     }
 
-    public long calculateExpirationTime()
+    public int getFocusNetworkId()
     {
-        return (System.currentTimeMillis()/1000L - getScanPeriod());
+        return m_focusNetworkId;
     }
+
+    public void setFocusNetworkId(int networkId)
+    {
+        m_focusNetworkId = networkId;
+    }
+
 }

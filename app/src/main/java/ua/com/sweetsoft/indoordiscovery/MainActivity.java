@@ -15,11 +15,10 @@ import ua.com.sweetsoft.indoordiscovery.db.DatabaseChangeNotifier;
 import ua.com.sweetsoft.indoordiscovery.db.IDatabaseChangeListener;
 import ua.com.sweetsoft.indoordiscovery.fragment.Fragment;
 import ua.com.sweetsoft.indoordiscovery.fragment.graph.IGraphListener;
-import ua.com.sweetsoft.indoordiscovery.fragment.grid.IGridListener;
 import ua.com.sweetsoft.indoordiscovery.settings.SettingsActivity;
 import ua.com.sweetsoft.indoordiscovery.settings.SettingsManager;
 
-public class MainActivity extends AppCompatActivity implements IDatabaseChangeListener, IGridListener, IGraphListener
+public class MainActivity extends AppCompatActivity implements IDatabaseChangeListener, IGraphListener
 {
     private SettingsManager m_settingsManager;
     private DatabaseChangeNotifier m_databaseChangeNotifier;
@@ -110,11 +109,6 @@ public class MainActivity extends AppCompatActivity implements IDatabaseChangeLi
         }
 
         return boResult;
-    }
-
-    public void onNetworkClick(int networkId)
-    {
-
     }
 
     public void onGraph(Uri uri)

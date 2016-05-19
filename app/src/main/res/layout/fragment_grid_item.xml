@@ -4,21 +4,27 @@
                 android:layout_height="wrap_content">
 
     <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="fill_parent"
-        android:textAppearance="?android:attr/textAppearanceMedium"
         android:id="@+id/network"
-        android:singleLine="true"
-        />
-
-    <TextView
+        style="@style/Network.Default"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
-        android:textAppearance="?android:attr/textAppearanceMedium"
-        android:id="@+id/signalLevel"
-        android:layout_toEndOf="@id/network"
-        android:layout_toRightOf="@+id/network"
-        android:textAlignment="center"
+        android:layout_toStartOf="@+id/signalLevel"
+        android:layout_toLeftOf="@+id/signalLevel"
         android:singleLine="true"/>
+
+    <TextView
+        android:id="@+id/signalLevel"
+        style="@style/SignalLevel.Default"
+        android:layout_width="wrap_content"
+        android:layout_height="fill_parent"
+        android:layout_alignParentRight="true"
+        android:width="@dimen/grid_signal_level_width"
+        android:singleLine="true"
+        android:textAlignment="textEnd"
+        android:gravity="end"
+        android:paddingStart="@dimen/grid_signal_level_padding_left"
+        android:paddingLeft="@dimen/grid_signal_level_padding_left"
+        android:paddingEnd="@dimen/grid_signal_level_padding_right"
+        android:paddingRight="@dimen/grid_signal_level_padding_right"/>
 
 </RelativeLayout>

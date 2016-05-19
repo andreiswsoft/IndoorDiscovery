@@ -9,9 +9,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 import ua.com.sweetsoft.indoordiscovery.R;
+import ua.com.sweetsoft.indoordiscovery.settings.SettingsManager;
 
 public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewHolder>
 {
+    private static final int ITEM_VIEW_TYPE_DEFAULT = 0;
+    private static final int ITEM_VIEW_TYPE_FOCUSED = 1;
+
     private List<RecyclerViewData> m_viewDataList = new ArrayList<RecyclerViewData>();
     private int m_refreshCounter = 0;
     private final IGridListener m_listener;
@@ -22,10 +26,28 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewHolder
     }
 
     @Override
+    public int getItemViewType(int position)
+    {
+        int viewType = ITEM_VIEW_TYPE_DEFAULT;
+
+        SettingsManager settingsManager = SettingsManager.checkInstance();
+        if (settingsManager != null)
+        {
+            RecyclerViewData viewData = m_viewDataList.get(position);
+            if (viewData.getNetworkId() == settingsManager.getFocusNetworkId())
+            {
+                viewType = ITEM_VIEW_TYPE_FOCUSED;
+            }
+        }
+
+        return viewType;
+    }
+
+    @Override
     public RecyclerViewHolder onCreateViewHolder(ViewGroup parent, int viewType)
     {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.fragment_grid_item, parent, false);
-        return new RecyclerViewHolder(view);
+        return new RecyclerViewHolder(view, viewType == ITEM_VIEW_TYPE_FOCUSED);
     }
 
     @Override
@@ -43,7 +65,10 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewHolder
             {
                 if (m_listener != null)
                 {
-                    m_listener.onNetworkClick(holder.m_networkId);
+                    if (m_listener.onNetworkClick(holder.m_networkId))
+                    {
+                        notifyDataSetChanged();
+                    }
                 }
             }
         });
