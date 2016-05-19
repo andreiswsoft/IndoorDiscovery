@@ -2,9 +2,9 @@
 
     <SwitchPreference
         android:defaultValue="true"
-        android:key="@string/pref_key_scanner_switch"
-        android:summary="@string/pref_description_scanner_switch"
-        android:title="@string/pref_title_scanner_switch"/>
+        android:key="@string/pref_key_scan_switch"
+        android:summary="@string/pref_description_scan_switch"
+        android:title="@string/pref_title_scan_switch"/>
     <EditTextPreference
         android:defaultValue="@string/pref_default_scan_period"
         android:inputType="numberDecimal"

@@ -17,15 +17,16 @@
     <string name="notify_action_stop_service">Stop service</string>
 
     <!-- Strings related to Settings -->
-    <string name="pref_key_scanner_switch">scanner_switch</string>
+    <string name="pref_key_undefined">undefined</string>
+    <string name="pref_key_scan_switch">scan_switch</string>
     <string name="pref_key_scan_period">scan_period</string>
     <string name="pref_key_data_storage_duration">data_storage_duration</string>
 
     <!-- General settings -->
     <string name="pref_header_general">General</string>
 
-    <string name="pref_title_scanner_switch">Scanner switch</string>
-    <string name="pref_description_scanner_switch">Turn on/off the scanner</string>
+    <string name="pref_title_scan_switch">Scan switch</string>
+    <string name="pref_description_scan_switch">Turn on/off the scan</string>
 
     <string name="pref_title_scan_period">Scan period (sec)</string>
     <string name="pref_default_scan_period">60</string>

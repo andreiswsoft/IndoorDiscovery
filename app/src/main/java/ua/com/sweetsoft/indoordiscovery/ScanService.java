@@ -26,10 +26,12 @@ import ua.com.sweetsoft.indoordiscovery.apisafe.HandlerThread;
 import ua.com.sweetsoft.indoordiscovery.common.Information;
 import ua.com.sweetsoft.indoordiscovery.common.Logger;
 import ua.com.sweetsoft.indoordiscovery.common.ServiceMessageReceiver;
+import ua.com.sweetsoft.indoordiscovery.settings.ISettingsListener;
+import ua.com.sweetsoft.indoordiscovery.settings.SettingId;
 import ua.com.sweetsoft.indoordiscovery.settings.SettingsManager;
 import ua.com.sweetsoft.indoordiscovery.wifi.StateChangedReceiver;
 
-public class ScanService extends Service implements Handler.Callback, ServiceMessageReceiver.IReceiver
+public class ScanService extends Service implements Handler.Callback, ServiceMessageReceiver.IReceiver, ISettingsListener
 {
     private static final int NOTIFICATION_ID = 1;
     private static final boolean debugMode = true;
@@ -94,6 +96,7 @@ public class ScanService extends Service implements Handler.Callback, ServiceMes
         m_handlerThread.start();
 
         m_settingsManager = SettingsManager.getInstance(this);
+        m_settingsManager.registerSettingsListener(this);
 
         Handler handler = new Handler(m_handlerThread.getLooper(), this);
         m_stateChangeReceiver = new StateChangedReceiver(handler);
@@ -111,6 +114,7 @@ public class ScanService extends Service implements Handler.Callback, ServiceMes
 
         unregisterReceiver(m_stateChangeReceiver);
 
+        m_settingsManager.unregisterSettingsListener(this);
         m_settingsManager = null;
 
         m_handlerThread.quitSafely();
@@ -134,10 +138,7 @@ public class ScanService extends Service implements Handler.Callback, ServiceMes
         switch (MessageCode.fromInt(msg.what))
         {
             case ReceiveSetting:
-                if (m_settingsManager.receiveSetting(msg.arg1, msg.arg2))
-                {
-                    updateScan();
-                }
+                m_settingsManager.receiveSetting(msg.arg1, msg.arg2);
                 break;
             case WiFiStateChanged:
                 if (!debugMode)
@@ -155,20 +156,32 @@ public class ScanService extends Service implements Handler.Callback, ServiceMes
         return handled;
     }
 
+    @Override
+    public void onSettingChanged(SettingId settingId)
+    {
+        switch (settingId)
+        {
+            case ScanSwitch:
+            case ScanPeriod:
+                updateScan();
+                break;
+        }
+    }
+
     private void stopService()
     {
         stopForeground(true);
         stopSelf();
     }
 
-    private boolean isScannerStarted()
+    private boolean isScanStarted()
     {
         return (m_syncTimer != null);
     }
 
     private void checkedStartScan()
     {
-        if (m_settingsManager.isScannerOn())
+        if (m_settingsManager.isScanOn())
         {
             //if (!getPackageManager().hasSystemFeature(PackageManager.FEATURE_WIFI))
             WifiManager manager = (WifiManager) getSystemService(Context.WIFI_SERVICE);
@@ -181,7 +194,7 @@ public class ScanService extends Service implements Handler.Callback, ServiceMes
 
     private void startScan()
     {
-        if (!isScannerStarted())
+        if (!isScanStarted())
         {
             m_syncTask = new ScanSyncTimerTask(this, debugMode);
             m_syncTimer = new Timer(true);
@@ -206,7 +219,7 @@ public class ScanService extends Service implements Handler.Callback, ServiceMes
 
     private void updateScan()
     {
-        if (isScannerStarted())
+        if (isScanStarted())
         {
             stopScan();
         }
@@ -220,7 +233,7 @@ public class ScanService extends Service implements Handler.Callback, ServiceMes
         switch (state)
         {
             case WifiManager.WIFI_STATE_DISABLED:
-                if (isScannerStarted())
+                if (isScanStarted())
                 {
                     stopScan();
                     updateNotification();
@@ -280,7 +293,7 @@ public class ScanService extends Service implements Handler.Callback, ServiceMes
 
     private Notification createNotification()
     {
-        boolean scannerStarted = isScannerStarted();
+        boolean scanStarted = isScanStarted();
 
         Intent intentGoToApp = new Intent(this, MainActivity.class);
         Intent intentStopService = new Intent(this, ScanServiceStopper.class);
@@ -295,12 +308,12 @@ public class ScanService extends Service implements Handler.Callback, ServiceMes
         builder.setLargeIcon(BitmapFactory.decodeResource(res, R.mipmap.ic_launcher));
         builder.setWhen(System.currentTimeMillis());
         builder.setAutoCancel(false);
-        builder.setContentTitle(res.getString(scannerStarted ? R.string.notify_title_scan_on : R.string.notify_title_scan_off));
+        builder.setContentTitle(res.getString(scanStarted ? R.string.notify_title_scan_on : R.string.notify_title_scan_off));
         builder.setContentText(res.getString(R.string.notify_text));
         builder.addAction(R.drawable.status_scan, res.getString(R.string.notify_action_stop_service), pIntentStopService);
 
         Notification notification = builder.build();
-        notification.iconLevel = scannerStarted ? 1 : 0;
+        notification.iconLevel = scanStarted ? 1 : 0;
         return notification;
     }
 

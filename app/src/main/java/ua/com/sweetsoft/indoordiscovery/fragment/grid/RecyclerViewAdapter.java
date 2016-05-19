@@ -65,10 +65,7 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewHolder
             {
                 if (m_listener != null)
                 {
-                    if (m_listener.onNetworkClick(holder.m_networkId))
-                    {
-                        notifyDataSetChanged();
-                    }
+                    m_listener.onNetworkClick(holder.m_networkId);
                 }
             }
         });

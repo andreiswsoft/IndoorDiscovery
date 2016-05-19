@@ -80,10 +80,10 @@ public class SettingsActivity extends AppCompatPreferenceActivity
     {
         preference.setOnPreferenceChangeListener(preferenceChangeListener);
 
-        switch (m_settingsManager.idOf(preference.getKey()))
+        switch (m_settingsManager.keyToSettingId(preference.getKey()))
         {
-            case R.string.pref_key_scan_period:
-            case R.string.pref_key_data_storage_duration:
+            case ScanPeriod:
+            case DataStorageDuration:
                 EditTextPreference editTextPreference = (EditTextPreference)preference;
                 EditText editText = editTextPreference.getEditText();
                 List<InputFilter> filterList = new ArrayList<InputFilter>();

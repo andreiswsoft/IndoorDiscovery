@@ -11,7 +11,7 @@ import android.view.ViewGroup;
 
 import ua.com.sweetsoft.indoordiscovery.R;
 import ua.com.sweetsoft.indoordiscovery.fragment.Fragment;
-import ua.com.sweetsoft.indoordiscovery.settings.SettingsManager;
+import ua.com.sweetsoft.indoordiscovery.settings.SettingId;
 
 public class FragmentGrid extends Fragment implements IGridListener
 {
@@ -71,37 +71,26 @@ public class FragmentGrid extends Fragment implements IGridListener
     }
 
     @Override
-    public void onAttach(Context context)
-    {
-        super.onAttach(context);
-    }
-
-    @Override
-    public void onDetach()
-    {
-        super.onDetach();
-    }
-
-    @Override
     public void refresh()
     {
         m_adapter.beginRefresh();
     }
 
     @Override
-    public boolean onNetworkClick(int networkId)
+    public void onNetworkClick(int networkId)
     {
-        boolean updated = false;
-        SettingsManager manager = SettingsManager.checkInstance();
-        if (manager != null)
+        m_settingsManager.setFocusNetworkId(networkId);
+    }
+
+    @Override
+    public void onSettingChanged(SettingId settingId)
+    {
+        switch (settingId)
         {
-            if (manager.getFocusNetworkId() != networkId)
-            {
-                manager.setFocusNetworkId(networkId);
-                updated = true;
-            }
+            case FocusNetworkId:
+                m_adapter.notifyDataSetChanged();
+                break;
         }
-        return updated;
     }
 
 }

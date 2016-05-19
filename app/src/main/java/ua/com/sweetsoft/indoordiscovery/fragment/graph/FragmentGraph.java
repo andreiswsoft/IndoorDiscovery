@@ -16,10 +16,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import ua.com.sweetsoft.indoordiscovery.R;
-import ua.com.sweetsoft.indoordiscovery.db.ormlite.Network;
-import ua.com.sweetsoft.indoordiscovery.db.ormlite.NetworkCursor;
-import ua.com.sweetsoft.indoordiscovery.db.ormlite.SignalSample;
 import ua.com.sweetsoft.indoordiscovery.fragment.Fragment;
+import ua.com.sweetsoft.indoordiscovery.settings.SettingId;
 
 public class FragmentGraph extends Fragment
 {
@@ -148,6 +146,17 @@ public class FragmentGraph extends Fragment
             m_graph.addSeries(series, seriesFormat);
         }
         m_graph.redraw();
+    }
+
+    @Override
+    public void onSettingChanged(SettingId settingId)
+    {
+        switch (settingId)
+        {
+            case FocusNetworkId:
+
+                break;
+        }
     }
 
 }

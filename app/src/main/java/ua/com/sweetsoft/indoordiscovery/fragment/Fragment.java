@@ -4,8 +4,10 @@ import android.content.Context;
 
 import ua.com.sweetsoft.indoordiscovery.fragment.graph.FragmentGraph;
 import ua.com.sweetsoft.indoordiscovery.fragment.grid.FragmentGrid;
+import ua.com.sweetsoft.indoordiscovery.settings.ISettingsListener;
+import ua.com.sweetsoft.indoordiscovery.settings.SettingsManager;
 
-public abstract class Fragment extends android.support.v4.app.Fragment
+public abstract class Fragment extends android.support.v4.app.Fragment implements ISettingsListener
 {
     public enum FragmentType
     {
@@ -51,6 +53,26 @@ public abstract class Fragment extends android.support.v4.app.Fragment
             return tag;
         }
 
+    }
+
+    protected SettingsManager m_settingsManager = null;
+
+    @Override
+    public void onAttach(Context context)
+    {
+        super.onAttach(context);
+
+        m_settingsManager = SettingsManager.getInstance(context);
+        m_settingsManager.registerSettingsListener(this);
+    }
+
+    @Override
+    public void onDetach()
+    {
+        super.onDetach();
+
+        m_settingsManager.unregisterSettingsListener(this);
+        m_settingsManager = null;
     }
 
     public static Fragment create(FragmentType type)

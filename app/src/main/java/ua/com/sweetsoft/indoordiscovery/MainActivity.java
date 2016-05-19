@@ -15,10 +15,12 @@ import ua.com.sweetsoft.indoordiscovery.db.DatabaseChangeNotifier;
 import ua.com.sweetsoft.indoordiscovery.db.IDatabaseChangeListener;
 import ua.com.sweetsoft.indoordiscovery.fragment.Fragment;
 import ua.com.sweetsoft.indoordiscovery.fragment.graph.IGraphListener;
+import ua.com.sweetsoft.indoordiscovery.settings.ISettingsListener;
+import ua.com.sweetsoft.indoordiscovery.settings.SettingId;
 import ua.com.sweetsoft.indoordiscovery.settings.SettingsActivity;
 import ua.com.sweetsoft.indoordiscovery.settings.SettingsManager;
 
-public class MainActivity extends AppCompatActivity implements IDatabaseChangeListener, IGraphListener
+public class MainActivity extends AppCompatActivity implements IDatabaseChangeListener, IGraphListener, ISettingsListener
 {
     private SettingsManager m_settingsManager;
     private DatabaseChangeNotifier m_databaseChangeNotifier;
@@ -35,6 +37,7 @@ public class MainActivity extends AppCompatActivity implements IDatabaseChangeLi
         startService(new Intent(this, ScanService.class));
 
         m_settingsManager = SettingsManager.getInstance(this);
+        m_settingsManager.registerSettingsListener(this);
 
         setFragments();
 
@@ -46,6 +49,8 @@ public class MainActivity extends AppCompatActivity implements IDatabaseChangeLi
     protected void onDestroy()
     {
         super.onDestroy();
+
+        m_settingsManager.unregisterSettingsListener(this);
 
         m_databaseChangeNotifier.stop();
     }
@@ -93,11 +98,9 @@ public class MainActivity extends AppCompatActivity implements IDatabaseChangeLi
         {
             case R.id.main_view_grid:
                 m_settingsManager.setCurrentFragmentType(Fragment.FragmentType.Grid);
-                recreate();
                 break;
             case R.id.main_view_graph:
                 m_settingsManager.setCurrentFragmentType(Fragment.FragmentType.Graph);
-                recreate();
                 break;
             case R.id.main_settings:
                 Intent intent = new Intent(this, SettingsActivity.class);
@@ -120,6 +123,17 @@ public class MainActivity extends AppCompatActivity implements IDatabaseChangeLi
     public Context getContext()
     {
         return this;
+    }
+
+    @Override
+    public void onSettingChanged(SettingId settingId)
+    {
+        switch (settingId)
+        {
+            case CurrentFragmentType:
+                recreate();
+                break;
+        }
     }
 
     @Override

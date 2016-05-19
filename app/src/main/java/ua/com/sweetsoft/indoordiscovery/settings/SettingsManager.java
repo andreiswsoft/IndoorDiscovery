@@ -4,8 +4,11 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Message;
 import android.preference.PreferenceManager;
+import android.support.annotation.StringRes;
 
 import java.lang.ref.WeakReference;
+import java.util.ArrayList;
+import java.util.List;
 
 import ua.com.sweetsoft.indoordiscovery.R;
 import ua.com.sweetsoft.indoordiscovery.ScanService;
@@ -16,11 +19,12 @@ public final class SettingsManager implements SharedPreferences.OnSharedPreferen
 {
     private static volatile WeakReference<SettingsManager> m_instance = new WeakReference<SettingsManager>(null);
 
+    private List<WeakReference<ISettingsListener>> m_listeners = new ArrayList<WeakReference<ISettingsListener>>();
     private Context m_context;
     private ServiceMessageSender m_messenger = null;
     private SharedPreferences m_preferences = null;
     // Persists settings
-    private boolean m_scannerOn;
+    private boolean m_scanOn;
     private int m_scanPeriod;
     private int m_dataStorageDuration;
     // Non persists settings
@@ -88,10 +92,7 @@ public final class SettingsManager implements SharedPreferences.OnSharedPreferen
 
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key)
     {
-        if (m_messenger != null)
-        {
-            sendSetting(key, sharedPreferences);
-        }
+        setSetting(key, sharedPreferences);
     }
 
     @Override
@@ -99,98 +100,80 @@ public final class SettingsManager implements SharedPreferences.OnSharedPreferen
     {
     }
 
-    private void sendSetting(String key, SharedPreferences sharedPreferences)
+    private void sendSetting(SettingId settingId)
     {
-        int value = 0;
-        int id = idOf(key);
-        switch (id)
+        if (m_messenger != null)
         {
-            case R.string.pref_key_scanner_switch:
-                m_scannerOn = sharedPreferences.getBoolean(key, m_scannerOn);
-                value = m_scannerOn ? 1 : 0;
-                break;
-            case R.string.pref_key_scan_period:
-                m_scanPeriod = getScanPeriod(sharedPreferences);
-                value = m_scanPeriod;
-                break;
-            case R.string.pref_key_data_storage_duration:
-                m_dataStorageDuration = getDataStorageDuration(sharedPreferences);
-                value = m_dataStorageDuration;
-                break;
+            int value = 0;
+            switch (settingId)
+            {
+                case ScanSwitch:
+                    value = m_scanOn ? 1 : 0;
+                    break;
+                case ScanPeriod:
+                    value = m_scanPeriod;
+                    break;
+                case DataStorageDuration:
+                    value = m_dataStorageDuration;
+                    break;
+            }
+            Message message = Message.obtain(null, ScanService.MessageCode.ReceiveSetting.toInt(), settingId.toInt(), value);
+            m_messenger.send(message);
         }
-        Message message = Message.obtain(null, ScanService.MessageCode.ReceiveSetting.toInt(), id, value);
-        m_messenger.send(message);
     }
 
-    public boolean receiveSetting(int id, int value)
+    public void receiveSetting(int id, int value)
     {
-        boolean changed = false;
-        switch (id)
+        switch (SettingId.fromInt(id))
         {
-            case R.string.pref_key_scanner_switch:
-                boolean scannerOn = (value != 0);
-                if (m_scannerOn != scannerOn)
-                {
-                    m_scannerOn = scannerOn;
-                    changed = true;
-                }
+            case ScanSwitch:
+                setScanOn(value != 0);
                 break;
-            case R.string.pref_key_scan_period:
-                int scanPeriod = value;
-                if (m_scanPeriod != scanPeriod)
-                {
-                    m_scanPeriod = scanPeriod;
-                    changed = true;
-                }
+            case ScanPeriod:
+                setScanPeriod(value);
                 break;
-            case R.string.pref_key_data_storage_duration:
-                int dataStorageDuration = value;
-                if (m_dataStorageDuration != dataStorageDuration)
-                {
-                    m_dataStorageDuration = dataStorageDuration;
-                    changed = true;
-                }
+            case DataStorageDuration:
+                setDataStorageDuration(value);
                 break;
         }
-        return changed;
     }
 
     private void ReadSettings()
     {
         SharedPreferences preferences = getPreferences();
-        m_scannerOn = preferences.getBoolean(keyOf(R.string.pref_key_scanner_switch), isDefaultScannerOn());
+        m_scanOn = preferences.getBoolean(settingIdToKey(SettingId.ScanSwitch), isDefaultScanOn());
         m_scanPeriod = getScanPeriod(preferences);
         m_dataStorageDuration = getDataStorageDuration(preferences);
     }
 
-    private String keyOf(int id)
+    private String settingIdToKey(SettingId settingId)
     {
-        return m_context.getString(id);
+        return m_context.getString(settingId.toResId());
     }
 
-    public int idOf(String key)
+    public SettingId keyToSettingId(String key)
     {
-        int id;
+        SettingId settingId;
         do
         {
-            id = R.string.pref_key_scanner_switch;
-            if (keyOf(id).equals(key))
+            settingId = SettingId.ScanSwitch;
+            if (settingIdToKey(settingId).equals(key))
             {
                 break;
             }
-            id = R.string.pref_key_scan_period;
-            if (keyOf(id).equals(key))
+            settingId = SettingId.ScanPeriod;
+            if (settingIdToKey(settingId).equals(key))
             {
                 break;
             }
-            id = R.string.pref_key_data_storage_duration;
-            if (keyOf(id).equals(key))
+            settingId = SettingId.DataStorageDuration;
+            if (settingIdToKey(settingId).equals(key))
             {
                 break;
             }
-            id = 0;
+            settingId = SettingId.undefined;
         } while(false);
-        return id;
+        return settingId;
     }
 
     public long calculateExpirationTime()
@@ -199,9 +182,19 @@ public final class SettingsManager implements SharedPreferences.OnSharedPreferen
     }
 
     // Persists settings
-    public boolean isScannerOn()
+    public boolean isScanOn()
     {
-        return m_scannerOn;
+        return m_scanOn;
+    }
+
+    public void setScanOn(boolean scanOn)
+    {
+        if (m_scanOn != scanOn)
+        {
+            m_scanOn = scanOn;
+            sendSetting(SettingId.ScanSwitch);
+            notifyChange(SettingId.ScanSwitch);
+        }
     }
 
     public int getScanPeriod()
@@ -209,9 +202,29 @@ public final class SettingsManager implements SharedPreferences.OnSharedPreferen
         return m_scanPeriod;
     }
 
+    public void setScanPeriod(int scanPeriod)
+    {
+        if (m_scanPeriod != scanPeriod)
+        {
+            m_scanPeriod = scanPeriod;
+            sendSetting(SettingId.ScanPeriod);
+            notifyChange(SettingId.ScanPeriod);
+        }
+    }
+
     public int getDataStorageDuration()
     {
         return m_dataStorageDuration;
+    }
+
+    public void setDataStorageDuration(int dataStorageDuration)
+    {
+        if (m_dataStorageDuration != dataStorageDuration)
+        {
+            m_dataStorageDuration = dataStorageDuration;
+            sendSetting(SettingId.DataStorageDuration);
+            notifyChange(SettingId.DataStorageDuration);
+        }
     }
 
     public String getString(String key)
@@ -222,7 +235,7 @@ public final class SettingsManager implements SharedPreferences.OnSharedPreferen
     private int getScanPeriod(SharedPreferences preferences)
     {
         int period;
-        String value = preferences.getString(keyOf(R.string.pref_key_scan_period), "");
+        String value = preferences.getString(settingIdToKey(SettingId.ScanPeriod), "");
         if (!value.isEmpty())
         {
             period = Integer.valueOf(value);
@@ -241,7 +254,7 @@ public final class SettingsManager implements SharedPreferences.OnSharedPreferen
     private int getDataStorageDuration(SharedPreferences preferences)
     {
         int duration;
-        String value = preferences.getString(keyOf(R.string.pref_key_data_storage_duration), "");
+        String value = preferences.getString(settingIdToKey(SettingId.DataStorageDuration), "");
         if (!value.isEmpty())
         {
             duration = Integer.valueOf(value);
@@ -257,7 +270,23 @@ public final class SettingsManager implements SharedPreferences.OnSharedPreferen
         return duration;
     }
 
-    public boolean isDefaultScannerOn()
+    private void setSetting(String key, SharedPreferences sharedPreferences)
+    {
+        switch (keyToSettingId(key))
+        {
+            case ScanSwitch:
+                setScanOn(sharedPreferences.getBoolean(key, m_scanOn));
+                break;
+            case ScanPeriod:
+                setScanPeriod(getScanPeriod(sharedPreferences));
+                break;
+            case DataStorageDuration:
+                setDataStorageDuration(getDataStorageDuration(sharedPreferences));
+                break;
+        }
+    }
+
+    public boolean isDefaultScanOn()
     {
         return true;
     }
@@ -289,7 +318,12 @@ public final class SettingsManager implements SharedPreferences.OnSharedPreferen
 
     public void setCurrentFragmentType(Fragment.FragmentType type)
     {
-        m_currentFragmentType = type;
+        if (m_currentFragmentType != type)
+        {
+            m_currentFragmentType = type;
+            sendSetting(SettingId.CurrentFragmentType);
+            notifyChange(SettingId.CurrentFragmentType);
+        }
     }
 
     public int getFocusNetworkId()
@@ -299,7 +333,45 @@ public final class SettingsManager implements SharedPreferences.OnSharedPreferen
 
     public void setFocusNetworkId(int networkId)
     {
-        m_focusNetworkId = networkId;
+        if (m_focusNetworkId != networkId)
+        {
+            m_focusNetworkId = networkId;
+            sendSetting(SettingId.FocusNetworkId);
+            notifyChange(SettingId.FocusNetworkId);
+        }
     }
 
+    public void registerSettingsListener(ISettingsListener listener)
+    {
+        for (WeakReference<ISettingsListener> listenerRef : m_listeners)
+        {
+            if (listenerRef.get() == listener)
+                return;
+        }
+        m_listeners.add(new WeakReference<ISettingsListener>(listener));
+    }
+
+    public void unregisterSettingsListener(ISettingsListener listener)
+    {
+        for (WeakReference<ISettingsListener> listenerRef : m_listeners)
+        {
+            if (listenerRef.get() == listener)
+            {
+                m_listeners.remove(listenerRef);
+                break;
+            }
+        }
+    }
+
+    private void notifyChange(SettingId settingId)
+    {
+        for (WeakReference<ISettingsListener> listenerRef : m_listeners)
+        {
+            ISettingsListener listener = listenerRef.get();
+            if (listener != null)
+            {
+                listener.onSettingChanged(settingId);
+            }
+        }
+    }
 }
