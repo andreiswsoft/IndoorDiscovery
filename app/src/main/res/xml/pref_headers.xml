@@ -5,7 +5,13 @@
         android:fragment="ua.com.sweetsoft.indoordiscovery.settings.GeneralPreferenceFragment"
         android:title="@string/pref_header_general"/>
     <header
+        android:fragment="ua.com.sweetsoft.indoordiscovery.settings.ScanPreferenceFragment"
+        android:title="@string/pref_header_scan"/>
+    <header
         android:fragment="ua.com.sweetsoft.indoordiscovery.settings.DataPreferenceFragment"
         android:title="@string/pref_header_data"/>
+    <header
+        android:fragment="ua.com.sweetsoft.indoordiscovery.settings.DebugPreferenceFragment"
+        android:title="@string/pref_header_debug"/>
 
 </preference-headers>

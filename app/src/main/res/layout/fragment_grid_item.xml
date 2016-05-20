@@ -10,7 +10,9 @@
         android:layout_height="fill_parent"
         android:layout_toStartOf="@+id/signalLevel"
         android:layout_toLeftOf="@+id/signalLevel"
-        android:singleLine="true"/>
+        android:singleLine="true"
+        android:fadingEdge="horizontal"
+        android:ellipsize="marquee"/>
 
     <TextView
         android:id="@+id/signalLevel"
@@ -25,6 +27,8 @@
         android:paddingStart="@dimen/grid_signal_level_padding_left"
         android:paddingLeft="@dimen/grid_signal_level_padding_left"
         android:paddingEnd="@dimen/grid_signal_level_padding_right"
-        android:paddingRight="@dimen/grid_signal_level_padding_right"/>
+        android:paddingRight="@dimen/grid_signal_level_padding_right"
+        android:fadingEdge="horizontal"
+        android:ellipsize="marquee"/>
 
 </RelativeLayout>

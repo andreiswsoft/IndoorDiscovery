@@ -4,17 +4,17 @@ import ua.com.sweetsoft.indoordiscovery.BuildConfig;
 
 public class Logger
 {
-    private static boolean m_boEnabled = false;
+    private static boolean m_enabled = false;
     private static String m_source;
 
     public static void enable(boolean boEnable)
     {
-        m_boEnabled = boEnable;
+        m_enabled = boEnable;
     }
 
     public static void logError(String error)
     {
-        if (m_boEnabled)
+        if (m_enabled)
         {
             android.util.Log.e(source(), error);
         }
@@ -22,7 +22,7 @@ public class Logger
 
     public static void logWarning(String warning)
     {
-        if (m_boEnabled)
+        if (m_enabled)
         {
             android.util.Log.w(source(), warning);
         }
@@ -30,15 +30,20 @@ public class Logger
 
     public static void logInformation(String information)
     {
-        if (m_boEnabled)
+        if (m_enabled)
         {
-            android.util.Log.i(source(), information);
+            logInformation(source(), information);
         }
+    }
+
+    private static void logInformation(String tag, String msg)
+    {
+        android.util.Log.i(tag, msg);
     }
 
     public static void logDebug(String debug)
     {
-        if (m_boEnabled)
+        if (m_enabled)
         {
             android.util.Log.d(source(), debug);
         }
@@ -46,7 +51,7 @@ public class Logger
 
     public static void logVerbose(String verbose)
     {
-        if (m_boEnabled)
+        if (m_enabled)
         {
             android.util.Log.v(source(), verbose);
         }
@@ -68,19 +73,46 @@ public class Logger
 
     public static void logInfoCurrentThread()
     {
-        logInformation("Current thread: " + Long.toHexString(Thread.currentThread().getId()));
+        if (m_enabled)
+        {
+            logInformation("Current thread: " + Long.toHexString(Thread.currentThread().getId()));
+        }
+    }
+
+    public static void logTrace()
+    {
+        if (m_enabled)
+        {
+            String className = "?";
+            String methodName = "?";
+            StackTraceElement[] stackTraceElements = Thread.currentThread().getStackTrace();
+            if (stackTraceElements != null && stackTraceElements.length >= 4)
+            {
+                className = stackTraceElements[3].getClassName();
+                int index = className.lastIndexOf('.');
+                if (index >= 0)
+                {
+                    className = className.substring(index + 1);
+                }
+                methodName = stackTraceElements[3].getMethodName();
+            }
+            logInformation(source() + ".trace", className + "." + methodName);
+        }
     }
 
     public static void logException(Exception ex, String data)
     {
-        String className = "?";
-        String methodName = "?";
-        StackTraceElement element = ex.getStackTrace()[0];
-        if (element != null)
+        if (m_enabled)
         {
-            className = element.getClassName();
-            methodName = element.getMethodName();
+            String className = "?";
+            String methodName = "?";
+            StackTraceElement element = ex.getStackTrace()[0];
+            if (element != null)
+            {
+                className = element.getClassName();
+                methodName = element.getMethodName();
+            }
+            logError(className + "." + methodName + "(" + data + ") -> " + ex.getMessage());
         }
-        logError(className + "." + methodName + "(" + data + ") -> " + ex.getMessage());
     }
 }

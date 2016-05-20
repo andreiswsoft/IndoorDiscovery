@@ -1,5 +1,6 @@
 package ua.com.sweetsoft.indoordiscovery;
 
+import android.app.ActivityManager;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -20,6 +21,7 @@ import android.support.v7.app.AlertDialog;
 import android.view.Window;
 import android.view.WindowManager;
 
+import java.util.List;
 import java.util.Timer;
 
 import ua.com.sweetsoft.indoordiscovery.apisafe.HandlerThread;
@@ -34,7 +36,6 @@ import ua.com.sweetsoft.indoordiscovery.wifi.StateChangedReceiver;
 public class ScanService extends Service implements Handler.Callback, ServiceMessageReceiver.IReceiver, ISettingsListener
 {
     private static final int NOTIFICATION_ID = 1;
-    private static final boolean debugMode = true;
 
     public enum MessageCode
     {
@@ -92,6 +93,8 @@ public class ScanService extends Service implements Handler.Callback, ServiceMes
     {
         super.onCreate();
 
+        Logger.logTrace();
+
         m_handlerThread = new HandlerThread("scanner", android.os.Process.THREAD_PRIORITY_BACKGROUND);
         m_handlerThread.start();
 
@@ -119,6 +122,8 @@ public class ScanService extends Service implements Handler.Callback, ServiceMes
 
         m_handlerThread.quitSafely();
 
+        Logger.logTrace();
+
         super.onDestroy();
     }
 
@@ -141,7 +146,7 @@ public class ScanService extends Service implements Handler.Callback, ServiceMes
                 m_settingsManager.receiveSetting(msg.arg1, msg.arg2);
                 break;
             case WiFiStateChanged:
-                if (!debugMode)
+                if (!m_settingsManager.isDebugOn())
                 {
                     checkWiFiState(msg.arg1);
                 }
@@ -163,6 +168,7 @@ public class ScanService extends Service implements Handler.Callback, ServiceMes
         {
             case ScanSwitch:
             case ScanPeriod:
+            case DebugSwitch:
                 updateScan();
                 break;
         }
@@ -172,6 +178,25 @@ public class ScanService extends Service implements Handler.Callback, ServiceMes
     {
         stopForeground(true);
         stopSelf();
+    }
+
+    public static boolean isServiceStarted(Context context)
+    {
+        boolean started = false;
+        String serviceProcessName = BuildConfig.APPLICATION_ID + context.getString(R.string.service_process_name);
+
+        ActivityManager activityManager = (ActivityManager)context.getSystemService(ACTIVITY_SERVICE);
+        List<ActivityManager.RunningServiceInfo> serviceInfos = activityManager.getRunningServices(Integer.MAX_VALUE);
+        for (ActivityManager.RunningServiceInfo info : serviceInfos)
+        {
+            if (info.process.equals(serviceProcessName))
+            {
+                started = true;
+                break;
+            }
+        }
+
+        return started;
     }
 
     private boolean isScanStarted()
@@ -185,7 +210,7 @@ public class ScanService extends Service implements Handler.Callback, ServiceMes
         {
             //if (!getPackageManager().hasSystemFeature(PackageManager.FEATURE_WIFI))
             WifiManager manager = (WifiManager) getSystemService(Context.WIFI_SERVICE);
-            if (debugMode || ua.com.sweetsoft.indoordiscovery.apisafe.WifiManager.isScanAvailable(manager))
+            if (m_settingsManager.isDebugOn() || ua.com.sweetsoft.indoordiscovery.apisafe.WifiManager.isScanAvailable(manager))
             {
                 startScan();
             }
@@ -196,7 +221,7 @@ public class ScanService extends Service implements Handler.Callback, ServiceMes
     {
         if (!isScanStarted())
         {
-            m_syncTask = new ScanSyncTimerTask(this, debugMode);
+            m_syncTask = new ScanSyncTimerTask(this, m_settingsManager.isDebugOn());
             m_syncTimer = new Timer(true);
             m_syncTimer.scheduleAtFixedRate(m_syncTask, 0, m_settingsManager.getScanPeriod() * 1000);
         }

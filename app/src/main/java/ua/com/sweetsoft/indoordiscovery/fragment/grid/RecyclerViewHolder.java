@@ -51,15 +51,6 @@ public class RecyclerViewHolder extends RecyclerView.ViewHolder
             resId = R.style.Network_Focused;
         }
         setStyleForTextView(m_network, resId);
-
-/*        m_network.setSingleLine(true);
-        m_network.setMaxLines(1);
-        m_network.setHorizontalFadingEdgeEnabled(true);
-        m_network.setHorizontallyScrolling(true);
-        m_network.setEnabled(true);
-        m_network.setFocusable(true);
-        m_network.setEllipsize(TextUtils.TruncateAt.MARQUEE);
-        m_network.setMarqueeRepeatLimit(-1);*/
     }
 
     private void setStyleForSignalLevel(boolean focused)

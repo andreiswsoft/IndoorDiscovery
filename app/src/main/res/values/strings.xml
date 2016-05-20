@@ -1,4 +1,5 @@
 <resources>
+    <string name="service_process_name">:scanService</string>
     <string name="app_name">Indoor Discovery</string>
     <string name="menu_grid_view">Grid view</string>
     <string name="menu_graph_view">Graph view</string>
@@ -18,23 +19,32 @@
 
     <!-- Strings related to Settings -->
     <string name="pref_key_undefined">undefined</string>
+    <string name="pref_key_scanner_switch">scanner_switch</string>
     <string name="pref_key_scan_switch">scan_switch</string>
     <string name="pref_key_scan_period">scan_period</string>
     <string name="pref_key_data_storage_duration">data_storage_duration</string>
+    <string name="pref_key_debug_switch">debug_switch</string>
+    <string name="pref_key_debug_generated_network_number">debug_generated_network_number</string>
 
     <!-- General settings -->
     <string name="pref_header_general">General</string>
-
-    <string name="pref_title_scan_switch">Scan switch</string>
+    <string name="pref_title_scanner_switch">Scanner switch</string>
+    <string name="pref_description_scanner_switch">Turn on/off the run of the scanner service</string>
+    <!-- Scan settings -->
+    <string name="pref_header_scan">Scan</string>
+    <string name="pref_title_scan_switch">Switch</string>
     <string name="pref_description_scan_switch">Turn on/off the scan</string>
-
-    <string name="pref_title_scan_period">Scan period (sec)</string>
-    <string name="pref_default_scan_period">60</string>
-
+    <string name="pref_title_scan_period">Period (sec)</string>
+    <string name="pref_default_scan_period">3</string>
     <!-- Data settings -->
     <string name="pref_header_data">Data</string>
-
     <string name="pref_title_data_storage_duration">Storage duration (sec)</string>
-    <string name="pref_default_data_storage_duration">360</string>
+    <string name="pref_default_data_storage_duration">30</string>
+    <!-- Debug settings -->
+    <string name="pref_header_debug">Debug</string>
+    <string name="pref_title_debug_switch">Switch</string>
+    <string name="pref_description_debug_switch">Turn on/off debug mode</string>
+    <string name="pref_title_debug_generated_network_number">Generated network number</string>
+    <string name="pref_default_debug_generated_network_number">5</string>
 
 </resources>

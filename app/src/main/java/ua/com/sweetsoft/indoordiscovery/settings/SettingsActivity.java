@@ -23,8 +23,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import ua.com.sweetsoft.indoordiscovery.R;
+import ua.com.sweetsoft.indoordiscovery.ScanService;
 
-public class SettingsActivity extends AppCompatPreferenceActivity
+public class SettingsActivity extends AppCompatPreferenceActivity implements ISettingsListener
 {
     private static SettingsManager m_settingsManager = null;
 
@@ -84,6 +85,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity
         {
             case ScanPeriod:
             case DataStorageDuration:
+            case DebugGeneratedNetworkNumber:
                 EditTextPreference editTextPreference = (EditTextPreference)preference;
                 EditText editText = editTextPreference.getEditText();
                 List<InputFilter> filterList = new ArrayList<InputFilter>();
@@ -106,7 +108,12 @@ public class SettingsActivity extends AppCompatPreferenceActivity
         super.onCreate(savedInstanceState);
 
         m_settingsManager = SettingsManager.getInstance(this);
-        m_settingsManager.startSyncChanges();
+        m_settingsManager.registerSettingsListener(this);
+        m_settingsManager.startListenChanges();
+        if (ScanService.isServiceStarted(this))
+        {
+            m_settingsManager.startSyncChanges();
+        }
 
         setupActionBar();
     }
@@ -115,6 +122,8 @@ public class SettingsActivity extends AppCompatPreferenceActivity
     protected void onDestroy()
     {
         m_settingsManager.stopSyncChanges();
+        m_settingsManager.stopListenChanges();
+        m_settingsManager.unregisterSettingsListener(this);
 
         super.onDestroy();
     }
@@ -164,4 +173,20 @@ public class SettingsActivity extends AppCompatPreferenceActivity
     {
         return PreferenceFragment.isChild(fragmentName);
     }
+
+    @Override
+    public void onSettingChanged(SettingId settingId)
+    {
+        switch (settingId)
+        {
+            case ScannerSwitch:
+            case DebugSwitch:
+                if (m_settingsManager.isScannerOn() || m_settingsManager.isDebugOn())
+                {
+                    m_settingsManager.startSyncChanges();
+                }
+                break;
+        }
+    }
+
 }

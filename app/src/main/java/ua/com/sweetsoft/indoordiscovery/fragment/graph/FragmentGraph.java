@@ -96,7 +96,7 @@ public class FragmentGraph extends Fragment
         beginRefresh();
     }
 
-    public void beginRefresh()
+    private void beginRefresh()
     {
         synchronized (FragmentGraph.class)
         {
@@ -140,8 +140,15 @@ public class FragmentGraph extends Fragment
         for (SerieData data : m_dataList)
         {
             XYSeries series = new SimpleXYSeries(data.getSignalLevels(), SimpleXYSeries.ArrayFormat.Y_VALS_ONLY, data.getNetworkSsid());
-            int lineColor = Color.rgb(10 * data.getNetworkId(), 26 * data.getNetworkId(), 42 * data.getNetworkId());
-            int pointColor = Color.rgb(5 * data.getNetworkId(), 12 * data.getNetworkId(), 21 * data.getNetworkId());
+            //int lineColor = Color.rgb(10 * data.getNetworkId(), 26 * data.getNetworkId(), 42 * data.getNetworkId());
+            //int pointColor = Color.rgb(5 * data.getNetworkId(), 12 * data.getNetworkId(), 21 * data.getNetworkId());
+            int lineColor = Color.rgb(0, 0, 0);
+            int pointColor = Color.rgb(0, 0, 0);
+            if (m_settingsManager.getFocusNetworkId() == data.getNetworkId())
+            {
+                lineColor = Color.rgb(255, 255, 255);
+                pointColor = Color.rgb(255, 255, 255);
+            }
             LineAndPointFormatter seriesFormat = new LineAndPointFormatter(lineColor, pointColor, null, null);
             m_graph.addSeries(series, seriesFormat);
         }
@@ -154,7 +161,7 @@ public class FragmentGraph extends Fragment
         switch (settingId)
         {
             case FocusNetworkId:
-
+                refresh();
                 break;
         }
     }

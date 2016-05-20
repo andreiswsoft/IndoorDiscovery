@@ -8,7 +8,7 @@ import ua.com.sweetsoft.indoordiscovery.db.ormlite.SignalSample;
 
 public class RecyclerViewData
 {
-    private static final String undefinedSignalLevel = "-";
+    private static final String undefinedSignalLevel = "?";
 
     private int m_networkId;
     private String m_networkSsid;

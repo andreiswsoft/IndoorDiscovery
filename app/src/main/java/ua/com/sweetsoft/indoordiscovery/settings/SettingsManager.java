@@ -12,6 +12,7 @@ import java.util.List;
 
 import ua.com.sweetsoft.indoordiscovery.R;
 import ua.com.sweetsoft.indoordiscovery.ScanService;
+import ua.com.sweetsoft.indoordiscovery.common.Logger;
 import ua.com.sweetsoft.indoordiscovery.common.ServiceMessageSender;
 import ua.com.sweetsoft.indoordiscovery.fragment.Fragment;
 
@@ -24,9 +25,12 @@ public final class SettingsManager implements SharedPreferences.OnSharedPreferen
     private ServiceMessageSender m_messenger = null;
     private SharedPreferences m_preferences = null;
     // Persists settings
+    private boolean m_scannerOn;
     private boolean m_scanOn;
     private int m_scanPeriod;
     private int m_dataStorageDuration;
+    private boolean m_debugOn;
+    private int m_debugGeneratedNetworkNumber;
     // Non persists settings
     private Fragment.FragmentType m_currentFragmentType = Fragment.FragmentType.Grid;
     private int m_focusNetworkId = 0;
@@ -70,6 +74,16 @@ public final class SettingsManager implements SharedPreferences.OnSharedPreferen
         stopSyncChanges();
     }
 
+    public void startListenChanges()
+    {
+        getPreferences().registerOnSharedPreferenceChangeListener(this);
+    }
+
+    public void stopListenChanges()
+    {
+        getPreferences().unregisterOnSharedPreferenceChangeListener(this);
+    }
+
     public void startSyncChanges()
     {
         if (m_messenger == null)
@@ -77,12 +91,10 @@ public final class SettingsManager implements SharedPreferences.OnSharedPreferen
             m_messenger = new ServiceMessageSender(this);
             m_messenger.bind(m_context, ScanService.class);
         }
-        getPreferences().registerOnSharedPreferenceChangeListener(this);
     }
 
     public void stopSyncChanges()
     {
-        getPreferences().unregisterOnSharedPreferenceChangeListener(this);
         if (m_messenger != null)
         {
             m_messenger.unbind(m_context);
@@ -107,6 +119,9 @@ public final class SettingsManager implements SharedPreferences.OnSharedPreferen
             int value = 0;
             switch (settingId)
             {
+                case ScannerSwitch:
+                    value = m_scannerOn ? 1 : 0;
+                    break;
                 case ScanSwitch:
                     value = m_scanOn ? 1 : 0;
                     break;
@@ -115,6 +130,12 @@ public final class SettingsManager implements SharedPreferences.OnSharedPreferen
                     break;
                 case DataStorageDuration:
                     value = m_dataStorageDuration;
+                    break;
+                case DebugSwitch:
+                    value = m_debugOn ? 1 : 0;
+                    break;
+                case DebugGeneratedNetworkNumber:
+                    value = m_debugGeneratedNetworkNumber;
                     break;
             }
             Message message = Message.obtain(null, ScanService.MessageCode.ReceiveSetting.toInt(), settingId.toInt(), value);
@@ -126,6 +147,9 @@ public final class SettingsManager implements SharedPreferences.OnSharedPreferen
     {
         switch (SettingId.fromInt(id))
         {
+            case ScannerSwitch:
+                setScannerOn(value != 0);
+                break;
             case ScanSwitch:
                 setScanOn(value != 0);
                 break;
@@ -135,15 +159,24 @@ public final class SettingsManager implements SharedPreferences.OnSharedPreferen
             case DataStorageDuration:
                 setDataStorageDuration(value);
                 break;
+            case DebugSwitch:
+                setDebugOn(value != 0);
+                break;
+            case DebugGeneratedNetworkNumber:
+                setDebugGeneratedNetworkNumber(value);
+                break;
         }
     }
 
     private void ReadSettings()
     {
         SharedPreferences preferences = getPreferences();
+        m_scannerOn = preferences.getBoolean(settingIdToKey(SettingId.ScannerSwitch), isDefaultScannerOn());
         m_scanOn = preferences.getBoolean(settingIdToKey(SettingId.ScanSwitch), isDefaultScanOn());
         m_scanPeriod = getScanPeriod(preferences);
         m_dataStorageDuration = getDataStorageDuration(preferences);
+        m_debugOn = preferences.getBoolean(settingIdToKey(SettingId.DebugSwitch), isDefaultDebugOn());
+        m_debugGeneratedNetworkNumber = getDebugGeneratedNetworkNumber(preferences);
     }
 
     private String settingIdToKey(SettingId settingId)
@@ -156,6 +189,11 @@ public final class SettingsManager implements SharedPreferences.OnSharedPreferen
         SettingId settingId;
         do
         {
+            settingId = SettingId.ScannerSwitch;
+            if (settingIdToKey(settingId).equals(key))
+            {
+                break;
+            }
             settingId = SettingId.ScanSwitch;
             if (settingIdToKey(settingId).equals(key))
             {
@@ -171,6 +209,16 @@ public final class SettingsManager implements SharedPreferences.OnSharedPreferen
             {
                 break;
             }
+            settingId = SettingId.DebugSwitch;
+            if (settingIdToKey(settingId).equals(key))
+            {
+                break;
+            }
+            settingId = SettingId.DebugGeneratedNetworkNumber;
+            if (settingIdToKey(settingId).equals(key))
+            {
+                break;
+            }
             settingId = SettingId.undefined;
         } while(false);
         return settingId;
@@ -182,6 +230,21 @@ public final class SettingsManager implements SharedPreferences.OnSharedPreferen
     }
 
     // Persists settings
+    public boolean isScannerOn()
+    {
+        return m_scannerOn;
+    }
+
+    public void setScannerOn(boolean scannerOn)
+    {
+        if (m_scannerOn != scannerOn)
+        {
+            m_scannerOn = scannerOn;
+            sendSetting(SettingId.ScannerSwitch);
+            notifyChange(SettingId.ScannerSwitch);
+        }
+    }
+
     public boolean isScanOn()
     {
         return m_scanOn;
@@ -227,6 +290,36 @@ public final class SettingsManager implements SharedPreferences.OnSharedPreferen
         }
     }
 
+    public boolean isDebugOn()
+    {
+        return m_debugOn;
+    }
+
+    public void setDebugOn(boolean debugOn)
+    {
+        if (m_debugOn != debugOn)
+        {
+            m_debugOn = debugOn;
+            sendSetting(SettingId.DebugSwitch);
+            notifyChange(SettingId.DebugSwitch);
+        }
+    }
+
+    public int getDebugGeneratedNetworkNumber()
+    {
+        return m_debugGeneratedNetworkNumber;
+    }
+
+    public void setDebugGeneratedNetworkNumber(int debugGeneratedNetworkNumber)
+    {
+        if (m_debugGeneratedNetworkNumber != debugGeneratedNetworkNumber)
+        {
+            m_debugGeneratedNetworkNumber = debugGeneratedNetworkNumber;
+            sendSetting(SettingId.DebugGeneratedNetworkNumber);
+            notifyChange(SettingId.DebugGeneratedNetworkNumber);
+        }
+    }
+
     public String getString(String key)
     {
         return getPreferences().getString(key, "");
@@ -244,9 +337,9 @@ public final class SettingsManager implements SharedPreferences.OnSharedPreferen
         {
             period = getDefaultScanPeriod();
         }
-        if (period < 0)
+        if (period < 1)
         {
-            period = 0;
+            period = 1;
         }
         return period;
     }
@@ -263,17 +356,39 @@ public final class SettingsManager implements SharedPreferences.OnSharedPreferen
         {
             duration = getDefaultDataStorageDuration();
         }
-        if (duration < 0)
+        if (duration < 1)
         {
-            duration = 0;
+            duration = 1;
         }
         return duration;
+    }
+
+    private int getDebugGeneratedNetworkNumber(SharedPreferences preferences)
+    {
+        int number;
+        String value = preferences.getString(settingIdToKey(SettingId.DebugGeneratedNetworkNumber), "");
+        if (!value.isEmpty())
+        {
+            number = Integer.valueOf(value);
+        }
+        else
+        {
+            number = getDefaultDebugGeneratedNetworkNumber();
+        }
+        if (number < 1)
+        {
+            number = 1;
+        }
+        return number;
     }
 
     private void setSetting(String key, SharedPreferences sharedPreferences)
     {
         switch (keyToSettingId(key))
         {
+            case ScannerSwitch:
+                setScannerOn(sharedPreferences.getBoolean(key, m_scannerOn));
+                break;
             case ScanSwitch:
                 setScanOn(sharedPreferences.getBoolean(key, m_scanOn));
                 break;
@@ -283,7 +398,18 @@ public final class SettingsManager implements SharedPreferences.OnSharedPreferen
             case DataStorageDuration:
                 setDataStorageDuration(getDataStorageDuration(sharedPreferences));
                 break;
+            case DebugSwitch:
+                setDebugOn(sharedPreferences.getBoolean(key, m_debugOn));
+                break;
+            case DebugGeneratedNetworkNumber:
+                setDebugGeneratedNetworkNumber(getDebugGeneratedNetworkNumber(sharedPreferences));
+                break;
         }
+    }
+
+    public boolean isDefaultScannerOn()
+    {
+        return true;
     }
 
     public boolean isDefaultScanOn()
@@ -299,6 +425,16 @@ public final class SettingsManager implements SharedPreferences.OnSharedPreferen
     private int getDefaultDataStorageDuration()
     {
         return Integer.valueOf(m_context.getString(R.string.pref_default_data_storage_duration));
+    }
+
+    public boolean isDefaultDebugOn()
+    {
+        return false;
+    }
+
+    private int getDefaultDebugGeneratedNetworkNumber()
+    {
+        return Integer.valueOf(m_context.getString(R.string.pref_default_debug_generated_network_number));
     }
 
     private SharedPreferences getPreferences()
@@ -365,6 +501,8 @@ public final class SettingsManager implements SharedPreferences.OnSharedPreferen
 
     private void notifyChange(SettingId settingId)
     {
+        Logger.logInformation("Setting changed: " + settingId.toString());
+
         for (WeakReference<ISettingsListener> listenerRef : m_listeners)
         {
             ISettingsListener listener = listenerRef.get();

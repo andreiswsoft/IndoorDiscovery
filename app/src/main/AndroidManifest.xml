@@ -35,7 +35,7 @@
             android:name=".ScanService"
             android:enabled="true"
             android:exported="false"
-            android:process=":scanService">
+            android:process="@string/service_process_name">
         </service>
         <receiver
             android:name=".ScanServiceStarter"

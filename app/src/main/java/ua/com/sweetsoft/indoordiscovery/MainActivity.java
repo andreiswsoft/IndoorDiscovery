@@ -34,10 +34,10 @@ public class MainActivity extends AppCompatActivity implements IDatabaseChangeLi
 
         Logger.enable(true);
 
-        startService(new Intent(this, ScanService.class));
-
         m_settingsManager = SettingsManager.getInstance(this);
         m_settingsManager.registerSettingsListener(this);
+
+        updateService();
 
         setFragments();
 
@@ -130,6 +130,10 @@ public class MainActivity extends AppCompatActivity implements IDatabaseChangeLi
     {
         switch (settingId)
         {
+            case ScannerSwitch:
+            case DebugSwitch:
+                updateService();
+                break;
             case CurrentFragmentType:
                 recreate();
                 break;
@@ -206,4 +210,24 @@ public class MainActivity extends AppCompatActivity implements IDatabaseChangeLi
         }
         fragmentTransaction.commit();
     }
+
+    private void updateService()
+    {
+        if (!ScanService.isServiceStarted(this))
+        {
+            if (m_settingsManager.isScannerOn() || m_settingsManager.isDebugOn())
+            {
+                startService(new Intent(this, ScanService.class));
+            }
+        }
+        else
+        {
+            if (!m_settingsManager.isScannerOn() && !m_settingsManager.isDebugOn())
+            {
+                Intent intent = new Intent(this, ScanServiceStopper.class);
+                startActivity(intent);
+            }
+        }
+    }
+
 }
