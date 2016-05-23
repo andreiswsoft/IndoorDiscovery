@@ -215,14 +215,14 @@ public class MainActivity extends AppCompatActivity implements IDatabaseChangeLi
     {
         if (!ScanService.isServiceStarted(this))
         {
-            if (m_settingsManager.isScannerOn() || m_settingsManager.isDebugOn())
+            if (m_settingsManager.isScannerOn())
             {
                 startService(new Intent(this, ScanService.class));
             }
         }
         else
         {
-            if (!m_settingsManager.isScannerOn() && !m_settingsManager.isDebugOn())
+            if (!m_settingsManager.isScannerOn())
             {
                 Intent intent = new Intent(this, ScanServiceStopper.class);
                 startActivity(intent);

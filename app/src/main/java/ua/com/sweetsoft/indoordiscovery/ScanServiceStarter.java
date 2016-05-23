@@ -12,7 +12,7 @@ public class ScanServiceStarter extends BroadcastReceiver
     public void onReceive(Context context, Intent intent)
     {
         SettingsManager settingsManager = SettingsManager.getInstance(context);
-        if (settingsManager.isScannerOn() || settingsManager.isDebugOn())
+        if (settingsManager.isScannerOn())
         {
             context.startService(new Intent(context, ScanService.class));
         }

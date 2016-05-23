@@ -181,7 +181,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity implements ISe
         {
             case ScannerSwitch:
             case DebugSwitch:
-                if (m_settingsManager.isScannerOn() || m_settingsManager.isDebugOn())
+                if (m_settingsManager.isScannerOn())
                 {
                     m_settingsManager.startSyncChanges();
                 }
