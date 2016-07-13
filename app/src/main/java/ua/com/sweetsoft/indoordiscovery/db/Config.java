@@ -27,4 +27,14 @@ public interface Config extends BaseColumns
     int COLUMN_SIGNALSAMPLE_LEVEL_INDEX = 2;
     int COLUMN_SIGNALSAMPLE_TIME_INDEX = 3;
 
+    // Location table
+    String TABLE_LOCATION = "location";
+    String COLUMN_LOCATION_LATITUDE = "latitude";
+    String COLUMN_LOCATION_LONGITUDE = "longitude";
+    String COLUMN_LOCATION_ALTITUDE = "altitude";
+    String COLUMN_LOCATION_TIME = "time";
+    int COLUMN_LOCATION_LATITUDE_INDEX = 1;
+    int COLUMN_LOCATION_LONGITUDE_INDEX = 2;
+    int COLUMN_LOCATION_ALTITUDE_INDEX = 3;
+    int COLUMN_LOCATION_TIME_INDEX = 4;
 }

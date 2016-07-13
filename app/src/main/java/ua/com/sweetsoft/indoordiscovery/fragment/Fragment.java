@@ -4,6 +4,7 @@ import android.content.Context;
 
 import ua.com.sweetsoft.indoordiscovery.fragment.graph.FragmentGraph;
 import ua.com.sweetsoft.indoordiscovery.fragment.grid.FragmentGrid;
+import ua.com.sweetsoft.indoordiscovery.fragment.location.LocationFragment;
 import ua.com.sweetsoft.indoordiscovery.settings.ISettingsListener;
 import ua.com.sweetsoft.indoordiscovery.settings.SettingsManager;
 
@@ -12,7 +13,8 @@ public abstract class Fragment extends android.support.v4.app.Fragment implement
     public enum FragmentType
     {
         Grid(1),
-        Graph(2);
+        Graph(2),
+        Location(3);
 
         private int m_i;
 
@@ -48,6 +50,9 @@ public abstract class Fragment extends android.support.v4.app.Fragment implement
                     break;
                 case Graph:
                     tag = "fragmentGraph";
+                    break;
+                case Location:
+                    tag = "fragmentLocation";
                     break;
             }
             return tag;
@@ -85,6 +90,9 @@ public abstract class Fragment extends android.support.v4.app.Fragment implement
                 break;
             case Graph:
                 fragment = new FragmentGraph();
+                break;
+            case Location:
+                fragment = new LocationFragment();
                 break;
         }
         return fragment;

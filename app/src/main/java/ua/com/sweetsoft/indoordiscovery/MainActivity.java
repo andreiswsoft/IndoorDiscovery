@@ -102,9 +102,11 @@ public class MainActivity extends AppCompatActivity implements IDatabaseChangeLi
             case R.id.main_view_graph:
                 m_settingsManager.setCurrentFragmentType(Fragment.FragmentType.Graph);
                 break;
+            case R.id.main_location:
+                startActivity(new Intent(this, LocationActivity.class));
+                break;
             case R.id.main_settings:
-                Intent intent = new Intent(this, SettingsActivity.class);
-                startActivity(intent);
+                startActivity(new Intent(this, SettingsActivity.class));
                 break;
             default:
                 boResult = super.onOptionsItemSelected(item);

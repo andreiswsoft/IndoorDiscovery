@@ -16,6 +16,12 @@
         android:icon="@drawable/ic_timeline_white_24dp"
         app:showAsAction="ifRoom" />
     <item
+        android:id="@+id/main_location"
+        android:orderInCategory="200"
+        android:title="@string/menu_location"
+        android:icon="@drawable/ic_settings_white_24dp"
+        app:showAsAction="never" />
+    <item
         android:id="@+id/main_settings"
         android:orderInCategory="200"
         android:title="@string/menu_settings"

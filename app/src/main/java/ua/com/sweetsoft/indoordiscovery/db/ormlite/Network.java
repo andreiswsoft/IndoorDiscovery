@@ -2,7 +2,6 @@ package ua.com.sweetsoft.indoordiscovery.db.ormlite;
 
 import android.content.Context;
 
-import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.field.DatabaseField;
 
 import java.io.Serializable;
@@ -10,7 +9,6 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-import ua.com.sweetsoft.indoordiscovery.common.Logger;
 import ua.com.sweetsoft.indoordiscovery.db.Config;
 import ua.com.sweetsoft.indoordiscovery.settings.SettingsManager;
 

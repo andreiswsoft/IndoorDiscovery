@@ -6,7 +6,6 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-import ua.com.sweetsoft.indoordiscovery.common.Logger;
 import ua.com.sweetsoft.indoordiscovery.db.Config;
 import ua.com.sweetsoft.indoordiscovery.settings.SettingsManager;
 

@@ -10,7 +10,7 @@ import java.sql.SQLException;
 public class ConfigUtil extends OrmLiteConfigUtil
 {
     private static final String CONFIG_FILE_NAME = "ormlite_config.txt";
-    private static final Class<?>[] classes = new Class[]{Network.class, SignalSample.class};
+    private static final Class<?>[] classes = new Class[]{Network.class, SignalSample.class, Location.class};
 
     public static void main(String[] args) throws SQLException, IOException
     {

@@ -3,7 +3,9 @@
     <string name="app_name">Indoor Discovery</string>
     <string name="menu_grid_view">Grid view</string>
     <string name="menu_graph_view">Graph view</string>
+    <string name="menu_location">Location</string>
     <string name="menu_settings">Settings</string>
+    <string name="title_activity_location">Location</string>
     <string name="title_activity_settings">Settings</string>
 
     <string name="alert_title_scan">IndoorDiscovery</string>

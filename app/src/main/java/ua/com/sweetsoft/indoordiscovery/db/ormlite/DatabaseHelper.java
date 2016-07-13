@@ -16,10 +16,11 @@ import ua.com.sweetsoft.indoordiscovery.common.Logger;
 public class DatabaseHelper extends OrmLiteSqliteOpenHelper
 {
     private static final String DATABASE_NAME = "database.db";
-    private static final int DATABASE_VERSION = 2;
+    private static final int DATABASE_VERSION = 3;
 
     private NetworkDao m_networkDao;
     private SignalSampleDao m_signalSampleDao;
+    private LocationDao m_locationDao;
 
     public DatabaseHelper(Context context)
     {
@@ -33,6 +34,7 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper
         {
             TableUtils.createTable(connectionSource, Network.class);
             TableUtils.createTable(connectionSource, SignalSample.class);
+            TableUtils.createTable(connectionSource, Location.class);
         }
         catch (SQLException e)
         {
@@ -47,6 +49,7 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper
         {
             TableUtils.dropTable(connectionSource, Network.class, true);
             TableUtils.dropTable(connectionSource, SignalSample.class, true);
+            TableUtils.dropTable(connectionSource, Location.class, true);
             onCreate(sqliteDatabase, connectionSource);
         }
         catch (SQLException e)
@@ -62,6 +65,7 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper
 
         m_networkDao = null;
         m_signalSampleDao = null;
+        m_locationDao = null;
     }
 
     public NetworkDao getNetworkDao()
@@ -102,6 +106,26 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper
             }
         }
         return m_signalSampleDao;
+    }
+
+    public LocationDao getLocationDao()
+    {
+        if (m_locationDao == null)
+        {
+            try
+            {
+                Dao<Location, Integer> dao = getDao(Location.class);
+                if (dao != null)
+                {
+                    m_locationDao = new LocationDao(dao);
+                }
+            }
+            catch (SQLException e)
+            {
+                Logger.logException(e, "DatabaseHelper.getLocationDao()");
+            }
+        }
+        return m_locationDao;
     }
 
 }

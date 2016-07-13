@@ -5,6 +5,8 @@
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
     <uses-permission android:name="android.permission.CHANGE_WIFI_STATE"/>
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW"/>
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+    <uses-permission android:name="android.permission.WAKE_LOCK"/>
 
     <uses-feature android:name="android.hardware.wifi"/>
 
@@ -22,6 +24,7 @@
             android:theme="@style/Splash">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
+
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
@@ -37,6 +40,7 @@
             android:exported="false"
             android:process="@string/service_process_name">
         </service>
+
         <receiver
             android:name=".ScanServiceStarter"
             android:enabled="true"
@@ -44,17 +48,36 @@
             <intent-filter>
                 <action android:name="android.intent.action.QUICKBOOT_POWERON"/>
                 <action android:name="android.intent.action.BOOT_COMPLETED"/>
+
                 <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
         </receiver>
-        <activity
-            android:name=".ScanServiceStopper">
+
+        <activity android:name=".ScanServiceStopper">
         </activity>
+
         <receiver
             android:name=".wifi.ScanReceiver"
             android:enabled="true"
             android:exported="true">
         </receiver>
+
+        <activity
+            android:name=".LocationActivity"
+            android:label="@string/title_activity_location"
+            android:parentActivityName=".MainActivity">
+        </activity>
+
+        <service android:name=".LocatorService">
+        </service>
+
+        <receiver
+            android:name=".LocatorReceiver"
+            android:exported="true">
+        </receiver>
+
+        <service android:name=".DatabaseUpdateService">
+        </service>
 
         <provider
             android:name=".wifi.NetworkContentProvider"
@@ -83,6 +106,7 @@
             android:enabled="true"
             android:exported="false">
         </receiver>
+
     </application>
 
 </manifest>

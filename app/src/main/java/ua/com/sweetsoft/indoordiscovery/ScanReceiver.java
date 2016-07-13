@@ -1,8 +1,8 @@
 package ua.com.sweetsoft.indoordiscovery;
 
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.support.v4.content.WakefulBroadcastReceiver;
 
 import java.util.Random;
 
@@ -13,7 +13,7 @@ import ua.com.sweetsoft.indoordiscovery.db.ormlite.SignalSample;
 import ua.com.sweetsoft.indoordiscovery.db.ormlite.SignalSampleDao;
 import ua.com.sweetsoft.indoordiscovery.settings.SettingsManager;
 
-public class ScanReceiver extends BroadcastReceiver
+public class ScanReceiver extends WakefulReceiver
 {
     private ScanSyncTimerTask m_scanTask;
 
@@ -35,8 +35,9 @@ public class ScanReceiver extends BroadcastReceiver
             m_scanTask.endScan();
         }
 
-        DatabaseUpdateAsyncTask task = new DatabaseUpdateAsyncTask(context.getApplicationContext());
-        task.execute();
+        Intent serviceIntent = new Intent(context, DatabaseUpdateService.class);
+        serviceIntent.fillIn(intent, Intent.FILL_IN_DATA);
+        startWakefulService(context, serviceIntent);
     }
 
     protected long getScanTime(Context context)

@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content">
+
+    <TextView
+        android:id="@+id/time"
+        style="@style/Time.Default"
+        android:layout_width="wrap_content"
+        android:layout_height="fill_parent"
+        android:singleLine="true"
+        android:fadingEdge="horizontal"
+        android:ellipsize="marquee"
+        android:layout_alignParentLeft="true"
+        android:paddingStart="@dimen/location_item_padding_left"
+        android:paddingLeft="@dimen/location_item_padding_left"
+        android:paddingEnd="@dimen/location_item_padding_right"
+        android:paddingRight="@dimen/location_item_padding_right"
+        />
+
+    <TextView
+        android:id="@+id/latitude"
+        style="@style/Latitude.Default"
+        android:layout_width="wrap_content"
+        android:layout_height="fill_parent"
+        android:singleLine="true"
+        android:fadingEdge="horizontal"
+        android:ellipsize="marquee"
+        android:layout_toEndOf="@id/time"
+        android:layout_toRightOf="@+id/time"
+        android:paddingStart="@dimen/location_item_padding_left"
+        android:paddingLeft="@dimen/location_item_padding_left"
+        android:paddingEnd="@dimen/location_item_padding_right"
+        android:paddingRight="@dimen/location_item_padding_right"
+        />
+
+    <TextView
+        android:id="@+id/longitude"
+        style="@style/Longitude.Default"
+        android:layout_width="wrap_content"
+        android:layout_height="fill_parent"
+        android:singleLine="true"
+        android:fadingEdge="horizontal"
+        android:ellipsize="marquee"
+        android:layout_toEndOf="@id/latitude"
+        android:layout_toRightOf="@+id/latitude"
+        android:paddingStart="@dimen/location_item_padding_left"
+        android:paddingLeft="@dimen/location_item_padding_left"
+        android:paddingEnd="@dimen/location_item_padding_right"
+        android:paddingRight="@dimen/location_item_padding_right"
+        />
+
+    <TextView
+        android:id="@+id/altitude"
+        style="@style/Altitude.Default"
+        android:layout_width="wrap_content"
+        android:layout_height="fill_parent"
+        android:singleLine="true"
+        android:fadingEdge="horizontal"
+        android:ellipsize="marquee"
+        android:layout_toEndOf="@id/longitude"
+        android:layout_toRightOf="@+id/longitude"
+        android:paddingStart="@dimen/location_item_padding_left"
+        android:paddingLeft="@dimen/location_item_padding_left"
+        android:paddingEnd="@dimen/location_item_padding_right"
+        android:paddingRight="@dimen/location_item_padding_right"
+        />
+</RelativeLayout>

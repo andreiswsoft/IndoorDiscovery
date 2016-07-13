@@ -6,8 +6,12 @@
 
     <dimen name="grid_list_margin_left">4dp</dimen>
     <dimen name="grid_list_margin_right">4dp</dimen>
-
     <dimen name="grid_signal_level_width">50dp</dimen>
     <dimen name="grid_signal_level_padding_left">2dp</dimen>
     <dimen name="grid_signal_level_padding_right">2dp</dimen>
+
+    <dimen name="location_list_margin_left">4dp</dimen>
+    <dimen name="location_list_margin_right">4dp</dimen>
+    <dimen name="location_item_padding_left">2dp</dimen>
+    <dimen name="location_item_padding_right">2dp</dimen>
 </resources>
